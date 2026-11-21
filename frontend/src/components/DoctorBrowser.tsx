@@ -78,31 +78,25 @@ export const DoctorBrowser: React.FC<DoctorBrowserProps> = ({ onSelectDoctor, on
 
   return (
     <div className="space-y-6">
-      {/* Executive Healthcare Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-emerald-950 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" /> Verified Clinical Network • WebRTC Telemedicine
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Physician Directory & Online Appointments
-            </h1>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Browse licensed specialists, review verified clinical credentials, and book instant telemedicine consultations with encrypted medical records exchange.
-            </p>
+      {/* Carevia Physician Directory Banner */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-teal-700 text-xs font-semibold mb-1">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            Verified Practitioner Network • Telehealth & In-Clinic
           </div>
-
-          <button
-            onClick={onAddDoctor}
-            className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-5 py-3 rounded-2xl shadow-lg shadow-emerald-500/25 transition flex items-center gap-2 flex-shrink-0 self-start md:self-auto"
-          >
-            <Plus className="w-4 h-4" /> Add Doctor
-          </button>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Physician Directory</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Browse certified medical specialists, review verified clinical credentials, and book 30-minute consultations.
+          </p>
         </div>
 
-        {/* Ambient Glow */}
-        <div className="absolute right-0 top-0 -mt-16 -mr-16 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <button
+          onClick={onAddDoctor}
+          className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2 flex-shrink-0 self-start md:self-auto"
+        >
+          <Plus className="w-4 h-4" /> Add Doctor Profile
+        </button>
       </div>
 
       {/* Search & Filter Toolbar */}

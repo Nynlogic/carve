@@ -3,8 +3,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CareFlow – Cloud-Native Clinic & Telemedicine Platform",
-  description: "Production-grade, HIPAA-compliant Telemedicine & Clinic Management Platform built on Next.js, FastAPI, PostgreSQL, and AWS.",
+  title: "Carevia – Connected care. Trusted by design.",
+  description: "Zero-Trust Healthcare Records & Teleconsultation Platform. Manage your healthcare journey, connect with trusted doctors, access medical records, and consult remotely through one secure platform.",
 };
 
 export default function RootLayout({

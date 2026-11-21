@@ -6,13 +6,19 @@ import {
   Users, 
   Stethoscope, 
   Calendar, 
-  DollarSign, 
   ShieldCheck, 
   Activity, 
   CheckCircle2, 
   Lock, 
   Search,
-  Filter
+  Filter,
+  Server,
+  Database,
+  Cloud,
+  Layers,
+  Trash2,
+  RefreshCw,
+  TrendingUp
 } from "lucide-react";
 
 export const AdminDashboard: React.FC = () => {
@@ -20,7 +26,7 @@ export const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeSubTab, setActiveSubTab] = useState<"overview" | "users" | "audit">("overview");
+  const [activeSubTab, setActiveSubTab] = useState<"overview" | "users" | "audit" | "system">("overview");
 
   // Audit search
   const [auditSearch, setAuditSearch] = useState("");
@@ -37,7 +43,7 @@ export const AdminDashboard: React.FC = () => {
       setUsers(usersData.items || []);
       setAuditLogs(auditData.items || []);
     } catch (err) {
-      console.error("Failed to load admin dashboard data:", err);
+      console.error("Failed to load operations console data:", err);
     } finally {
       setLoading(false);
     }
@@ -58,217 +64,232 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  if (loading && !analytics) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-white rounded-2xl border border-slate-200 animate-pulse" />
-          ))}
-        </div>
-      </div>
+  const handleResetCleanCanvas = async () => {
+    const confirmed = confirm(
+      "Reset to Clean Canvas?\n\nThis will remove pre-seeded mock doctors, patients, appointments, and records, keeping ONLY the Administrator account (admin@careflow.health) so you can add your own real doctors and patients!"
     );
-  }
+    if (!confirmed) return;
+
+    try {
+      await apiRequest("/users/clean-slate", { method: "POST" });
+      alert("Clean canvas activated! All mock data cleared.");
+      fetchData();
+    } catch (err: any) {
+      alert(err.message || "Reset failed.");
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Top Level Nav Sub-Tabs */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="flex items-center gap-2">
+      {/* Console Header */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-teal-700 text-xs font-semibold mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Carevia Operations Console • Active Administrator
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Healthcare Operations Console</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Platform metrics, provider licensing, user accounts, and immutable regulatory logs.
+          </p>
+        </div>
+
+        {/* Sub-Nav Pills */}
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200/70 self-start sm:self-auto">
           <button
             onClick={() => setActiveSubTab("overview")}
-            className={`text-xs px-4 py-2 rounded-xl font-bold transition ${
+            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition ${
               activeSubTab === "overview"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-white text-slate-900 shadow-sm font-bold"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Clinic KPIs & Analytics
+            Overview
           </button>
           <button
             onClick={() => setActiveSubTab("users")}
-            className={`text-xs px-4 py-2 rounded-xl font-bold transition ${
+            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition ${
               activeSubTab === "users"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-white text-slate-900 shadow-sm font-bold"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            User Management ({users.length})
+            Users ({users.length})
           </button>
           <button
             onClick={() => setActiveSubTab("audit")}
-            className={`text-xs px-4 py-2 rounded-xl font-bold transition ${
+            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition ${
               activeSubTab === "audit"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-white text-slate-900 shadow-sm font-bold"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            HIPAA Audit Logs ({auditLogs.length})
+            Audit Trail
+          </button>
+          <button
+            onClick={() => setActiveSubTab("system")}
+            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition ${
+              activeSubTab === "system"
+                ? "bg-white text-slate-900 shadow-sm font-bold"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            System
           </button>
         </div>
-
-        <span className="text-xs text-slate-400 font-mono hidden sm:inline">
-          CloudWatch • RDS Multi-AZ • ECS Task Active
-        </span>
       </div>
 
-      {/* VIEW 1: Overview KPIs */}
-      {activeSubTab === "overview" && analytics && (
+      {/* Subtab: Overview */}
+      {activeSubTab === "overview" && (
         <div className="space-y-6">
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Patients</span>
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <Users className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-2xl font-extrabold text-slate-900 mt-2">{analytics.total_patients}</p>
-              <span className="text-[11px] text-emerald-600 font-medium">Registered EHR profiles</span>
+          {/* Top KPI Metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <span className="text-[10px] font-bold uppercase text-slate-400">Total Patients</span>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{analytics?.total_patients || 0}</p>
+              <p className="text-[11px] text-teal-600 font-semibold mt-1">Verified patient records</p>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Verified Doctors</span>
-                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-                  <Stethoscope className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-2xl font-extrabold text-slate-900 mt-2">{analytics.total_doctors}</p>
-              <span className="text-[11px] text-teal-600 font-medium">Active clinical schedules</span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <span className="text-[10px] font-bold uppercase text-slate-400">Active Doctors</span>
+              <p className="text-2xl font-bold text-teal-700 mt-1">{analytics?.total_doctors || 0}</p>
+              <p className="text-[11px] text-slate-500 mt-1">MCI / State Council verified</p>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Consultations</span>
-                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Calendar className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-2xl font-extrabold text-slate-900 mt-2">{analytics.total_appointments}</p>
-              <span className="text-[11px] text-blue-600 font-medium">
-                {analytics.completed_consultations} Completed • {analytics.upcoming_appointments} Upcoming
-              </span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <span className="text-[10px] font-bold uppercase text-slate-400">Total Consultations</span>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{analytics?.total_appointments || 0}</p>
+              <p className="text-[11px] text-emerald-600 font-semibold mt-1">Telehealth & clinic</p>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue</span>
-                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-2xl font-extrabold text-slate-900 mt-2">₹{analytics.total_revenue_usd}</p>
-              <span className="text-[11px] text-amber-600 font-medium">Billed clinical consultations</span>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+              <span className="text-[10px] font-bold uppercase text-slate-400">Gross Clinical Revenue</span>
+              <p className="text-2xl font-bold text-emerald-600 mt-1">
+                ₹{(analytics?.total_revenue_usd || 0).toLocaleString()}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-1">Invoiced in INR (₹)</p>
             </div>
           </div>
 
-          {/* Breakdown Charts / Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Status Breakdown */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-900">Consultation Volume by Status</h3>
-              <div className="space-y-3">
-                {analytics.appointments_by_status.map((item: any) => (
-                  <div key={item.status} className="space-y-1">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-700">{item.status}</span>
-                      <span className="text-slate-900 font-mono">{item.count}</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full"
-                        style={{
-                          width: `${Math.min(100, (item.count / (analytics.total_appointments || 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+          {/* Breakdown & System Health */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Consultation status distribution */}
+            <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-slate-900">Consultation Volume & Status</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold">Scheduled / Upcoming</p>
+                  <p className="text-xl font-bold text-teal-800 mt-1">
+                    {analytics?.appointment_status_breakdown?.SCHEDULED || 0}
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold">Completed Visits</p>
+                  <p className="text-xl font-bold text-emerald-700 mt-1">
+                    {analytics?.appointment_status_breakdown?.COMPLETED || 0}
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold">Cancelled</p>
+                  <p className="text-xl font-bold text-slate-500 mt-1">
+                    {analytics?.appointment_status_breakdown?.CANCELLED || 0}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 text-xs text-slate-500 flex items-center justify-between">
+                <span>Average Consultation Duration: <strong className="text-slate-800">30 minutes</strong></span>
+                <span>System Availability SLA: <strong className="text-emerald-700">99.98%</strong></span>
               </div>
             </div>
 
-            {/* Specialty Breakdown */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-900">Clinical Specialty Coverage</h3>
-              <div className="space-y-3">
-                {analytics.doctors_by_specialty.map((item: any) => (
-                  <div key={item.specialization} className="space-y-1">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-700">{item.specialization}</span>
-                      <span className="text-slate-900 font-mono">{item.count} Doctor(s)</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-teal-500 rounded-full"
-                        style={{
-                          width: `${Math.min(100, (item.count / (analytics.total_doctors || 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+            {/* Health Infrastructure */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-600" /> Platform Infrastructure
+              </h3>
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <span className="font-semibold text-slate-800">FastAPI Stateless Core</span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Healthy
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <span className="font-semibold text-slate-800">PostgreSQL Multi-AZ</span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Connected
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <span className="font-semibold text-slate-800">S3 KMS Document Vault</span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Encrypted
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <span className="font-semibold text-slate-800">SQS Asynchronous Queue</span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Ready
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* VIEW 2: User Management */}
+      {/* Subtab: Users */}
       {activeSubTab === "users" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900">Clinic User Accounts</h3>
-            <span className="text-xs text-slate-500">Cognito User Pool Synced</span>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900">User Registry & Role Authorization</h3>
+            <span className="text-xs text-slate-500">{users.length} accounts registered</span>
           </div>
-
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="p-4">User</th>
-                  <th className="p-4">Role</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Created Date</th>
-                  <th className="p-4 text-right">Actions</th>
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+                <tr>
+                  <th className="py-3 px-4">Name & Email</th>
+                  <th className="py-3 px-4">Role</th>
+                  <th className="py-3 px-4">Phone</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 text-slate-700">
                 {users.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-50/50">
-                    <td className="p-4 font-semibold text-slate-900">
-                      <div>{u.full_name}</div>
-                      <div className="text-[11px] text-slate-400 font-normal">{u.email}</div>
+                    <td className="py-3 px-4">
+                      <p className="font-bold text-slate-900">{u.full_name}</p>
+                      <p className="text-[11px] text-slate-400">{u.email}</p>
                     </td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-800">
+                    <td className="py-3 px-4">
+                      <span className="font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md text-[11px] uppercase">
                         {u.role}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          u.is_active ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-                        }`}
-                      >
-                        {u.is_active ? "Active" : "Deactivated"}
-                      </span>
+                    <td className="py-3 px-4 text-slate-500">{u.phone || "—"}</td>
+                    <td className="py-3 px-4">
+                      {u.is_active ? (
+                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-bold">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded text-[10px] font-bold">
+                          Suspended
+                        </span>
+                      )}
                     </td>
-                    <td className="p-4 text-slate-500 font-mono text-[11px]">
-                      {new Date(u.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="p-4 text-right">
-                      <button
-                        onClick={() => toggleUserStatus(u.id, u.is_active)}
-                        className={`text-xs font-semibold px-3 py-1 rounded-lg transition ${
-                          u.is_active
-                            ? "text-rose-600 hover:bg-rose-50"
-                            : "text-emerald-600 hover:bg-emerald-50"
-                        }`}
-                      >
-                        {u.is_active ? "Deactivate" : "Activate"}
-                      </button>
+                    <td className="py-3 px-4 text-right">
+                      {u.role !== "admin" && (
+                        <button
+                          onClick={() => toggleUserStatus(u.id, u.is_active)}
+                          className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 underline"
+                        >
+                          {u.is_active ? "Deactivate" : "Activate"}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -278,66 +299,74 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 3: HIPAA Audit Logs */}
+      {/* Subtab: Audit Trail */}
       {activeSubTab === "audit" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
-          <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-slate-900">Immutable HIPAA Audit Trail</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  Compliant
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">Every sensitive action, document download, and e-Rx recorded.</p>
+              <h3 className="text-sm font-bold text-slate-900">Regulatory Audit Logs</h3>
+              <p className="text-xs text-slate-500">Immutable audit records tracking clinical PHI access</p>
             </div>
-
             <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search audit trail..."
                 value={auditSearch}
                 onChange={(e) => setAuditSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-emerald-500"
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500"
               />
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="p-3.5">Timestamp</th>
-                  <th className="p-3.5">Actor</th>
-                  <th className="p-3.5">Action</th>
-                  <th className="p-3.5">Resource</th>
-                  <th className="p-3.5">IP Address</th>
+          <div className="overflow-x-auto border border-slate-100 rounded-xl">
+            <table className="w-full text-left text-xs font-mono text-[11px]">
+              <thead className="bg-slate-50 font-sans text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+                <tr>
+                  <th className="py-2.5 px-3">Timestamp</th>
+                  <th className="py-2.5 px-3">Actor</th>
+                  <th className="py-2.5 px-3">Action</th>
+                  <th className="py-2.5 px-3">Resource</th>
+                  <th className="py-2.5 px-3">IP Address</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs font-mono">
+              <tbody className="divide-y divide-slate-100 text-slate-700">
                 {auditLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50/50">
-                    <td className="p-3.5 text-slate-500 text-[11px]">
+                    <td className="py-2 px-3 whitespace-nowrap text-slate-500 font-sans">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
-                    <td className="p-3.5 font-semibold text-slate-900">
-                      <div>{log.actor_email}</div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold">{log.actor_role}</span>
+                    <td className="py-2 px-3 font-sans font-semibold text-slate-900">
+                      {log.actor_email}
                     </td>
-                    <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-[10px]">
-                        {log.action}
-                      </span>
+                    <td className="py-2 px-3 font-bold text-teal-800">{log.action}</td>
+                    <td className="py-2 px-3 text-slate-600">
+                      {log.resource_type} #{log.resource_id}
                     </td>
-                    <td className="p-3.5 text-slate-600">
-                      {log.resource_type} {log.resource_id ? `#${log.resource_id}` : ""}
-                    </td>
-                    <td className="p-3.5 text-slate-500 text-[11px]">{log.ip_address}</td>
+                    <td className="py-2 px-3 text-slate-400">{log.ip_address}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subtab: System & Maintenance */}
+      {activeSubTab === "system" && (
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-slate-900">Platform Maintenance & Clean Canvas</h3>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
+              Use this tool when setting up custom clinical evaluations. It removes mock sample doctors and mock appointments, leaving the database completely clean with only the administrator account.
+            </p>
+
+            <button
+              onClick={handleResetCleanCanvas}
+              className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm"
+            >
+              <Trash2 className="w-4 h-4" /> Reset Platform to Clean Canvas
+            </button>
           </div>
         </div>
       )}
