@@ -75,6 +75,15 @@ export default function Home() {
     }
   };
 
+  const handleQuickDemo = async (role: "patient" | "doctor" | "admin") => {
+    setAuthError(null);
+    try {
+      await quickDemoLogin(role);
+    } catch (err: any) {
+      setAuthError(err.message || "Login failed.");
+    }
+  };
+
   const handleResetCleanCanvas = async () => {
     const confirmed = confirm(
       "Reset to Clean Canvas?\n\nThis will remove pre-seeded mock doctors, patients, appointments, and records, keeping ONLY the Administrator account (admin@careflow.health) so you can add your own real doctors and patients!"
@@ -179,21 +188,21 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => quickDemoLogin("patient")}
+                  onClick={() => handleQuickDemo("patient")}
                   className="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold text-center transition"
                 >
                   Patient
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickDemoLogin("doctor")}
+                  onClick={() => handleQuickDemo("doctor")}
                   className="p-2.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold text-center transition"
                 >
                   Doctor
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickDemoLogin("admin")}
+                  onClick={() => handleQuickDemo("admin")}
                   className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold text-center transition"
                 >
                   Admin

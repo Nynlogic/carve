@@ -249,7 +249,7 @@ export const DoctorBrowser: React.FC<DoctorBrowserProps> = ({ onSelectDoctor, on
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Fee / consult</span>
-                  <p className="text-base font-extrabold text-slate-900">${doc.consultation_fee}</p>
+                  <p className="text-base font-extrabold text-slate-900">₹{doc.consultation_fee}</p>
                 </div>
                 <button
                   onClick={() => onSelectDoctor(doc)}

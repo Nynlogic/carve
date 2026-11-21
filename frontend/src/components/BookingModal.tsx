@@ -215,7 +215,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, onClose, onS
               className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
-              {submitting ? "Confirming..." : `Confirm Booking ($${doctor.consultation_fee})`}
+              {submitting ? "Confirming..." : `Confirm Booking (₹${doctor.consultation_fee})`}
             </button>
           </div>
         </form>

@@ -12,9 +12,7 @@ import {
   User, 
   Mail, 
   Lock, 
-  Phone,
-  FileCheck2,
-  Calendar
+  Phone
 } from "lucide-react";
 
 interface AddPatientModalProps {
@@ -28,15 +26,15 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("PatientPass123!");
-  const [phone, setPhone] = useState("+1 (555) 345-6789");
-  const [dob, setDob] = useState("1992-06-15");
+  const [phone, setPhone] = useState("+91 98200 54321");
+  const [dob, setDob] = useState("1994-08-20");
   const [gender, setGender] = useState("Female");
-  const [bloodGroup, setBloodGroup] = useState("O+");
-  const [allergies, setAllergies] = useState("Penicillin, Latex");
+  const [bloodGroup, setBloodGroup] = useState("B+");
+  const [allergies, setAllergies] = useState("Penicillin, Dust");
   const [chronicConditions, setChronicConditions] = useState("Mild Asthma");
-  const [emergencyContact, setEmergencyContact] = useState("Robert (Spouse) - +1 (555) 999-1122");
-  const [insuranceProvider, setInsuranceProvider] = useState("Blue Cross Blue Shield");
-  const [insurancePolicyNumber, setInsurancePolicyNumber] = useState("BCBS-889021");
+  const [emergencyContact, setEmergencyContact] = useState("Ramesh (Father) - +91 98111 22334");
+  const [insuranceProvider, setInsuranceProvider] = useState("Star Health Insurance");
+  const [insurancePolicyNumber, setInsurancePolicyNumber] = useState("STAR-2024-88902");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +125,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Alice Johnson"
+                    placeholder="e.g. Pooja Mehta"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
@@ -144,7 +142,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                   <input
                     type="email"
                     required
-                    placeholder="patient@example.com"
+                    placeholder="pooja.mehta@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
@@ -178,7 +176,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 (555) 345-6789"
+                    placeholder="+91 98200 54321"
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -243,7 +241,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                   type="text"
                   value={emergencyContact}
                   onChange={(e) => setEmergencyContact(e.target.value)}
-                  placeholder="e.g. Spouse / Parent / Relative - +1 (555)..."
+                  placeholder="e.g. Ramesh (Father) - +91 98111 22334"
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -290,20 +288,20 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                   type="text"
                   value={insuranceProvider}
                   onChange={(e) => setInsuranceProvider(e.target.value)}
-                  placeholder="e.g. Blue Cross / Aetna / UnitedHealthcare"
+                  placeholder="e.g. Star Health / HDFC ERGO / ICICI Lombard / Care Health"
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Policy / Member ID
+                  Policy / TPA Member ID
                 </label>
                 <input
                   type="text"
                   value={insurancePolicyNumber}
                   onChange={(e) => setInsurancePolicyNumber(e.target.value)}
-                  placeholder="e.g. BCBS-99120"
+                  placeholder="e.g. STAR-2024-88902"
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500"
                 />
               </div>

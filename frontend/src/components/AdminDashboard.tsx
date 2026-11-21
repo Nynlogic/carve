@@ -159,7 +159,7 @@ export const AdminDashboard: React.FC = () => {
                   <DollarSign className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-extrabold text-slate-900 mt-2">${analytics.total_revenue_usd}</p>
+              <p className="text-2xl font-extrabold text-slate-900 mt-2">₹{analytics.total_revenue_usd}</p>
               <span className="text-[11px] text-amber-600 font-medium">Billed clinical consultations</span>
             </div>
           </div>

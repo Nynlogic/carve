@@ -8,14 +8,12 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Building2, 
-  DollarSign, 
   Award, 
   FileBadge, 
   User, 
   Mail, 
   Lock, 
-  Phone,
-  Sparkles
+  Phone
 } from "lucide-react";
 
 interface AddDoctorModalProps {
@@ -33,7 +31,7 @@ const PRESET_SPECIALTIES = [
   "Psychiatry",
   "Oncology",
   "Ophthalmology",
-  "General Surgery"
+  "General Medicine"
 ];
 
 const PRESET_AVATARS = [
@@ -48,12 +46,12 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("DoctorPass123!");
-  const [phone, setPhone] = useState("+1 (555) 000-1122");
+  const [phone, setPhone] = useState("+91 98765 43210");
   const [specialization, setSpecialization] = useState("Cardiology");
-  const [licenseNumber, setLicenseNumber] = useState(`MD-${Math.floor(100000 + Math.random() * 900000)}`);
-  const [consultationFee, setConsultationFee] = useState("120");
-  const [experienceYears, setExperienceYears] = useState("8");
-  const [hospitalAffiliation, setHospitalAffiliation] = useState("Mount Sinai Hospital");
+  const [licenseNumber, setLicenseNumber] = useState(`MCI-2024-${Math.floor(10000 + Math.random() * 90000)}`);
+  const [consultationFee, setConsultationFee] = useState("800");
+  const [experienceYears, setExperienceYears] = useState("10");
+  const [hospitalAffiliation, setHospitalAffiliation] = useState("Apollo Hospitals");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(PRESET_AVATARS[0]);
 
@@ -80,10 +78,10 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
           role: "doctor",
           specialization,
           license_number: licenseNumber,
-          consultation_fee: parseFloat(consultationFee) || 100.0,
+          consultation_fee: parseFloat(consultationFee) || 800.0,
           experience_years: parseInt(experienceYears, 10) || 5,
           hospital_affiliation: hospitalAffiliation,
-          bio: bio || `Specialist physician in ${specialization} with ${experienceYears} years of clinical practice.`,
+          bio: bio || `Senior Specialist in ${specialization} with ${experienceYears} years of clinical experience.`,
           avatar_url: avatarUrl
         })
       });
@@ -145,7 +143,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Dr. Arthur Miller, MD"
+                    placeholder="e.g. Dr. Rajesh Sharma, MD"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
@@ -155,14 +153,14 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Professional Email
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                   <input
                     type="email"
                     required
-                    placeholder="doctor@hospital.org"
+                    placeholder="dr.rajesh@apollo.org"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
@@ -196,7 +194,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+91 98765 43210"
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
@@ -227,7 +225,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Medical License Number
+                  Medical License Number (MCI / State Council)
                 </label>
                 <div className="relative">
                   <FileBadge className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -236,7 +234,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                     required
                     value={licenseNumber}
                     onChange={(e) => setLicenseNumber(e.target.value)}
-                    placeholder="MD-CA-98421"
+                    placeholder="MCI-2024-8921"
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
@@ -244,25 +242,25 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Consultation Fee (USD $)
+                  Consultation Fee (INR ₹)
                 </label>
                 <div className="relative">
-                  <DollarSign className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                  <span className="w-4 h-4 absolute left-3.5 top-2 text-slate-600 font-bold text-xs">₹</span>
                   <input
                     type="number"
-                    step="5"
+                    step="50"
                     required
                     value={consultationFee}
                     onChange={(e) => setConsultationFee(e.target.value)}
-                    placeholder="120"
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
+                    placeholder="800"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Years of Experience
+                  Years of Practice
                 </label>
                 <div className="relative">
                   <Award className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -271,7 +269,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                     required
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(e.target.value)}
-                    placeholder="8"
+                    placeholder="10"
                     className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
@@ -288,7 +286,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                   type="text"
                   value={hospitalAffiliation}
                   onChange={(e) => setHospitalAffiliation(e.target.value)}
-                  placeholder="e.g. Johns Hopkins Medicine / Stanford Health"
+                  placeholder="e.g. Apollo Hospitals / AIIMS / Fortis Healthcare"
                   className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500"
                 />
               </div>
@@ -302,7 +300,7 @@ export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSucce
                 rows={2}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Brief clinical background, specialties, education..."
+                placeholder="Senior Consultant specializing in preventive healthcare and clinical management..."
                 className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 resize-none"
               />
             </div>
