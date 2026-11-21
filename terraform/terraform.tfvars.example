@@ -1,7 +1,15 @@
-aws_region       = "us-east-1"
-project_name     = "careflow"
-environment      = "production"
-vpc_cidr         = "10.0.0.0/16"
+aws_region         = "us-east-1"
+project_name       = "carevia"
+environment        = "production"
+vpc_cidr           = "10.0.0.0/16"
 availability_zones = ["us-east-1a", "us-east-1b"]
-db_password      = "ChangeMeSecureProdPassword2026!"
-container_image  = "123456789012.dkr.ecr.us-east-1.amazonaws.com/careflow-api:latest"
+image_tag          = "latest"
+
+# Optional: If omitted or empty, a secure 32-character password is auto-generated into AWS Secrets Manager
+# db_password      = "OptionalCustomPassword"
+
+# Optional: ACM SSL Certificate ARN for ALB HTTPS (port 443) termination
+# certificate_arn  = "arn:aws:acm:us-east-1:123456789012:certificate/example-uuid"
+
+# Optional: GitHub repository (owner/repo) for automated OIDC deployment role
+# github_repository = "my-org/carevia"

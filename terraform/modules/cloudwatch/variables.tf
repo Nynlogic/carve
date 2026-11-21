@@ -1,6 +1,6 @@
 variable "project_name" {
   type    = string
-  default = "careflow"
+  default = "carevia"
 }
 
 variable "environment" {
@@ -22,4 +22,22 @@ variable "ecs_service_name" {
 
 variable "sns_topic_arn" {
   type = string
+}
+
+variable "rds_instance_id" {
+  description = "RDS DB Instance Identifier for CPU/Storage alarms"
+  type        = string
+  default     = ""
+}
+
+variable "lambda_function_name" {
+  description = "Lambda Function Name for error rate alarms"
+  type        = string
+  default     = ""
+}
+
+variable "sqs_queue_name" {
+  description = "SQS Queue Name for message backlog monitoring"
+  type        = string
+  default     = ""
 }

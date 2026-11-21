@@ -27,12 +27,23 @@ resource "aws_iam_policy" "ecs_execution_secrets" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
-          "secretsmanager:GetSecretValue",
+        Sid    = "SecretsManagerAccess"
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          var.db_secret_arn,
+          var.jwt_secret_arn
+        ]
+      },
+      {
+        Sid    = "KMSDecryptAccess"
+        Effect = "Allow"
+        Action = [
           "kms:Decrypt"
         ]
-        Resource = "*"
+        Resource = var.kms_key_arn
       }
     ]
   })
@@ -143,8 +154,8 @@ resource "aws_iam_policy" "lambda_app_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
@@ -152,15 +163,15 @@ resource "aws_iam_policy" "lambda_app_policy" {
         Resource = var.sqs_queue_arn
       },
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "sns:Publish"
         ]
         Resource = var.sns_topic_arn
       },
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "s3:GetObject",
           "s3:PutObjectTagging"
         ]

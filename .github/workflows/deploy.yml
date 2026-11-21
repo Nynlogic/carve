@@ -1,4 +1,4 @@
-name: CareFlow CD & Terraform Deploy
+name: CAREvia Production CI/CD Pipeline
 
 on:
   push:
@@ -6,13 +6,53 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
+  id-token: write # Required for AWS OIDC authentication
   contents: read
 
 jobs:
-  terraform-plan-and-deploy:
-    name: Terraform Infrastructure & ECS Deployment
+  test-and-lint:
+    name: Automated Unit Tests & Code Quality
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Backend Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-cov flake8
+
+      - name: Run Backend Pytest Suite
+        run: |
+          cd backend
+          pytest -v
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package.json
+
+      - name: Install Frontend Dependencies & Verify Build
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+  build-and-deploy:
+    name: ECR Build, Push & ECS Rolling Deploy
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Code
@@ -21,21 +61,24 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.7.0"
+          terraform_version: "1.7.5"
 
-      - name: Terraform Format Check
+      - name: Terraform Format & Validation Check
         run: |
           cd terraform
           terraform fmt -check
+          terraform init -backend=false
+          terraform validate
 
-      - name: Configure AWS Credentials (OIDC or Secrets)
+      - name: Configure AWS Credentials via GitHub OIDC (No Static Keys)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_DEPLOYMENT_ROLE_ARN || 'arn:aws:iam::123456789012:role/CareFlowDeployRole' }}
-        continue-on-error: true
+          role-to-assume: ${{ secrets.AWS_DEPLOYMENT_ROLE_ARN }}
+          role-session-name: GitHubActions-CAREvia-Deploy
+        continue-on-error: true # Allows local dry runs when running outside live AWS account
 
-      - name: Login to Amazon ECR
+      - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         continue-on-error: true
@@ -44,15 +87,26 @@ jobs:
         if: steps.login-ecr.outcome == 'success'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: careflow-api
+          ECR_REPOSITORY: carevia-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Deploy Task Definition to ECS Fargate
+      - name: Deploy Task Definition to Amazon ECS Fargate
         if: steps.login-ecr.outcome == 'success'
         run: |
-          aws ecs update-service --cluster careflow-production-cluster \
-            --service careflow-production-service \
+          aws ecs update-service \
+            --cluster carevia-production-cluster \
+            --service carevia-production-service \
             --force-new-deployment
+
+      - name: Verify Post-Deployment Health Check
+        if: steps.login-ecr.outcome == 'success'
+        run: |
+          echo "Verifying ECS target group health status..."
+          aws ecs wait services-stable \
+            --cluster carevia-production-cluster \
+            --services carevia-production-service

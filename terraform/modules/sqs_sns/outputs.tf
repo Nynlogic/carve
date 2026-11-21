@@ -2,6 +2,10 @@ output "queue_url" {
   value = aws_sqs_queue.appointments_queue.id
 }
 
+output "queue_name" {
+  value = aws_sqs_queue.appointments_queue.name
+}
+
 output "queue_arn" {
   value = aws_sqs_queue.appointments_queue.arn
 }

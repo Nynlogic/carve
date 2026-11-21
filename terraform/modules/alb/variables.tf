@@ -1,6 +1,6 @@
 variable "project_name" {
   type    = string
-  default = "careflow"
+  default = "carevia"
 }
 
 variable "environment" {
@@ -18,4 +18,10 @@ variable "public_subnet_ids" {
 
 variable "alb_security_group_id" {
   type = string
+}
+
+variable "certificate_arn" {
+  description = "Optional ACM certificate ARN for port 443 HTTPS termination"
+  type        = string
+  default     = ""
 }

@@ -1,3 +1,8 @@
+output "ecr_repository_url" {
+  description = "Amazon ECR Repository URL for building & pushing Docker images"
+  value       = module.ecr.repository_url
+}
+
 output "cloudfront_domain" {
   description = "Global CloudFront distribution URL"
   value       = module.cloudfront.cloudfront_domain_name
@@ -26,6 +31,11 @@ output "s3_medical_records_bucket" {
 output "rds_endpoint" {
   description = "PostgreSQL database endpoint"
   value       = module.rds.endpoint
+}
+
+output "db_secret_arn" {
+  description = "Secrets Manager ARN holding master database credentials"
+  value       = module.secrets_manager.db_secret_arn
 }
 
 output "sqs_queue_url" {

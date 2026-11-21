@@ -11,12 +11,12 @@ resource "aws_sqs_queue" "appointments_dlq" {
 
 # Primary SQS Queue for Asynchronous Appointment Notifications
 resource "aws_sqs_queue" "appointments_queue" {
-  name                      = "${var.project_name}-${var.environment}-appointments-queue"
-  delay_seconds             = 0
-  max_message_size          = 262144
-  message_retention_seconds = 345600 # 4 days
+  name                       = "${var.project_name}-${var.environment}-appointments-queue"
+  delay_seconds              = 0
+  max_message_size           = 262144
+  message_retention_seconds  = 345600 # 4 days
   visibility_timeout_seconds = 60
-  kms_master_key_id         = var.kms_key_arn
+  kms_master_key_id          = var.kms_key_arn
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.appointments_dlq.arn

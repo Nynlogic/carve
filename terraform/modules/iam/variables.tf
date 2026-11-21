@@ -1,6 +1,6 @@
 variable "project_name" {
   type    = string
-  default = "careflow"
+  default = "carevia"
 }
 
 variable "environment" {
@@ -22,4 +22,22 @@ variable "sqs_queue_arn" {
 
 variable "sns_topic_arn" {
   type = string
+}
+
+variable "db_secret_arn" {
+  description = "ARN of database credentials secret"
+  type        = string
+  default     = "*"
+}
+
+variable "jwt_secret_arn" {
+  description = "ARN of JWT credentials secret"
+  type        = string
+  default     = "*"
+}
+
+variable "github_repository" {
+  description = "GitHub repository (owner/repo) for OIDC federation"
+  type        = string
+  default     = ""
 }

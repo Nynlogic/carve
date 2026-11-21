@@ -77,6 +77,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "records_retention" {
     id     = "hipaa-longterm-archive"
     status = "Enabled"
 
+    filter {}
+
     transition {
       days          = 365
       storage_class = "GLACIER"

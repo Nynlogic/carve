@@ -1,11 +1,16 @@
 variable "project_name" {
   type    = string
-  default = "careflow"
+  default = "carevia"
 }
 
 variable "environment" {
   type    = string
   default = "production"
+}
+
+variable "aws_region" {
+  type    = string
+  default = "us-east-1"
 }
 
 variable "private_app_subnet_ids" {
@@ -29,13 +34,18 @@ variable "ecs_task_role_arn" {
 }
 
 variable "container_image" {
-  type    = string
-  default = "public.ecr.aws/careflow/backend:latest"
+  description = "ECR image URI with tag"
+  type        = string
 }
 
-variable "database_url" {
-  type      = string
-  sensitive = true
+variable "db_secret_arn" {
+  description = "ARN of Secrets Manager secret containing database credentials and DATABASE_URL"
+  type        = string
+}
+
+variable "jwt_secret_arn" {
+  description = "ARN of Secrets Manager secret containing JWT secret key"
+  type        = string
 }
 
 variable "s3_bucket_name" {

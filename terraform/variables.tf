@@ -1,35 +1,54 @@
 variable "aws_region" {
-  type    = string
-  default = "us-east-1"
+  type        = string
+  description = "AWS deployment region"
+  default     = "us-east-1"
 }
 
 variable "project_name" {
-  type    = string
-  default = "careflow"
+  type        = string
+  description = "Project name identifier"
+  default     = "carevia"
 }
 
 variable "environment" {
-  type    = string
-  default = "production"
+  type        = string
+  description = "Deployment environment (production/staging/dev)"
+  default     = "production"
 }
 
 variable "vpc_cidr" {
-  type    = string
-  default = "10.0.0.0/16"
+  type        = string
+  description = "CIDR block for the 3-tier VPC"
+  default     = "10.0.0.0/16"
 }
 
 variable "availability_zones" {
-  type    = list(string)
-  default = ["us-east-1a", "us-east-1b"]
+  type        = list(string)
+  description = "Target Availability Zones for Multi-AZ resilience"
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "db_password" {
   type        = string
-  description = "Master password for PostgreSQL RDS instance"
+  description = "Optional master password for RDS PostgreSQL. If empty, a secure 32-character password is generated automatically into Secrets Manager."
+  default     = ""
   sensitive   = true
 }
 
-variable "container_image" {
-  type    = string
-  default = "public.ecr.aws/careflow/backend:latest"
+variable "image_tag" {
+  type        = string
+  description = "ECR image tag deployed by CI/CD"
+  default     = "latest"
+}
+
+variable "certificate_arn" {
+  type        = string
+  description = "Optional ACM SSL Certificate ARN for ALB HTTPS (port 443) listener"
+  default     = ""
+}
+
+variable "github_repository" {
+  type        = string
+  description = "Optional GitHub repository (owner/repo) for automated OIDC deployment role"
+  default     = ""
 }

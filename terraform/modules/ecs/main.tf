@@ -51,7 +51,17 @@ resource "aws_ecs_task_definition" "api" {
         { name = "COGNITO_USER_POOL_ID", value = var.cognito_user_pool_id },
         { name = "COGNITO_CLIENT_ID", value = var.cognito_client_id },
         { name = "USE_AWS_COGNITO", value = "true" },
-        { name = "DATABASE_URL", value = var.database_url }
+        { name = "AWS_REGION", value = var.aws_region }
+      ]
+      secrets = [
+        {
+          name      = "DATABASE_URL"
+          valueFrom = "${var.db_secret_arn}:database_url::"
+        },
+        {
+          name      = "SECRET_KEY"
+          valueFrom = "${var.jwt_secret_arn}:secret_key::"
+        }
       ]
       logConfiguration = {
         logDriver = "awslogs"
