@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional, Union
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -32,7 +33,10 @@ class Settings(BaseSettings):
     STORAGE_MODE: str = "local"  # "s3" or "local"
     S3_BUCKET_NAME: str = "careflow-medical-records-storage"
     S3_PRESIGNED_EXPIRATION: int = 900  # 15 minutes
-    LOCAL_UPLOAD_DIR: str = "./uploads"
+    LOCAL_UPLOAD_DIR: str = os.getenv(
+        "LOCAL_UPLOAD_DIR",
+        os.path.expanduser("~/Desktop/careflow_downloads")
+    )
 
     # AWS SQS & SNS
     SQS_NOTIFICATION_QUEUE_URL: Optional[str] = None
