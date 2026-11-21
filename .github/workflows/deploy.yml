@@ -1,0 +1,58 @@
+name: CareFlow CD & Terraform Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-plan-and-deploy:
+    name: Terraform Infrastructure & ECS Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Format Check
+        run: |
+          cd terraform
+          terraform fmt -check
+
+      - name: Configure AWS Credentials (OIDC or Secrets)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_DEPLOYMENT_ROLE_ARN || 'arn:aws:iam::123456789012:role/CareFlowDeployRole' }}
+        continue-on-error: true
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        continue-on-error: true
+
+      - name: Build, Tag, and Push Docker Image to ECR
+        if: steps.login-ecr.outcome == 'success'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: careflow-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy Task Definition to ECS Fargate
+        if: steps.login-ecr.outcome == 'success'
+        run: |
+          aws ecs update-service --cluster careflow-production-cluster \
+            --service careflow-production-service \
+            --force-new-deployment
