@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { apiRequest } from "@/lib/api";
 import { Navbar } from "@/components/Navbar";
 import { DoctorBrowser } from "@/components/DoctorBrowser";
 import { BookingModal } from "@/components/BookingModal";
@@ -11,6 +12,9 @@ import { SoapNoteModal } from "@/components/SoapNoteModal";
 import { PrescriptionModal } from "@/components/PrescriptionModal";
 import { MedicalRecordsView } from "@/components/MedicalRecordsView";
 import { AdminDashboard } from "@/components/AdminDashboard";
+import { AddDoctorModal } from "@/components/AddDoctorModal";
+import { AddPatientModal } from "@/components/AddPatientModal";
+import { PatientDirectory } from "@/components/PatientDirectory";
 import { 
   Activity, 
   ShieldCheck, 
@@ -20,7 +24,10 @@ import {
   Server,
   Cloud,
   Layers,
-  Database
+  Database,
+  Plus,
+  Trash2,
+  CheckCircle2
 } from "lucide-react";
 
 export default function Home() {
@@ -34,6 +41,9 @@ export default function Home() {
   const [activeVideoRoom, setActiveVideoRoom] = useState<{ roomId: string; appointment: any } | null>(null);
   const [soapAppointment, setSoapAppointment] = useState<any | null>(null);
   const [rxAppointment, setRxAppointment] = useState<any | null>(null);
+  const [showAddDoctorModal, setShowAddDoctorModal] = useState<boolean>(false);
+  const [showAddPatientModal, setShowAddPatientModal] = useState<boolean>(false);
+  const [notificationBanner, setNotificationBanner] = useState<string | null>(null);
 
   // Auth Form state
   const [email, setEmail] = useState("");
@@ -41,12 +51,12 @@ export default function Home() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [submittingAuth, setSubmittingAuth] = useState(false);
 
-  // Switch initial tab based on role
+  // Set initial tab based on role
   React.useEffect(() => {
     if (user?.role === "doctor") {
       setActiveTab("appointments");
     } else if (user?.role === "admin") {
-      setActiveTab("admin");
+      setActiveTab("doctors");
     } else {
       setActiveTab("doctors");
     }
@@ -62,6 +72,22 @@ export default function Home() {
       setAuthError(err.message || "Invalid credentials.");
     } finally {
       setSubmittingAuth(false);
+    }
+  };
+
+  const handleResetCleanCanvas = async () => {
+    const confirmed = confirm(
+      "Reset to Clean Canvas?\n\nThis will remove pre-seeded mock doctors, patients, appointments, and records, keeping ONLY the Administrator account (admin@careflow.health) so you can add your own real doctors and patients!"
+    );
+    if (!confirmed) return;
+
+    try {
+      await apiRequest("/users/clean-slate", { method: "POST" });
+      setNotificationBanner("Clean canvas activated! All mock doctors and patients removed. You can now add your own doctors and patients.");
+      setTimeout(() => setNotificationBanner(null), 8000);
+      setActiveTab("doctors");
+    } catch (err: any) {
+      alert(err.message || "Reset failed.");
     }
   };
 
@@ -83,16 +109,16 @@ export default function Home() {
         {/* Simple Header */}
         <header className="p-6 max-w-7xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
               <Activity className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">CareFlow</span>
+            <span className="text-xl font-black tracking-tight text-slate-900">CareFlow</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 hidden sm:inline">AWS HIPAA Architecture Demo</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-              v1.0 Live
+            <span className="text-xs text-slate-500 hidden sm:inline">AWS HIPAA Production Platform</span>
+            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              v2.0 Advanced
             </span>
           </div>
         </header>
@@ -115,22 +141,22 @@ export default function Home() {
 
             {/* Architecture Highlights */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-left shadow-sm">
+              <div className="p-3.5 bg-white rounded-2xl border border-slate-200 text-left shadow-sm">
                 <Cloud className="w-4 h-4 text-emerald-600 mb-1" />
                 <p className="text-xs font-bold text-slate-900">ECS Fargate</p>
                 <p className="text-[10px] text-slate-500">Containerized API</p>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-left shadow-sm">
+              <div className="p-3.5 bg-white rounded-2xl border border-slate-200 text-left shadow-sm">
                 <Database className="w-4 h-4 text-emerald-600 mb-1" />
                 <p className="text-xs font-bold text-slate-900">RDS Postgres</p>
                 <p className="text-[10px] text-slate-500">KMS CMK Encrypted</p>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-left shadow-sm">
+              <div className="p-3.5 bg-white rounded-2xl border border-slate-200 text-left shadow-sm">
                 <Lock className="w-4 h-4 text-emerald-600 mb-1" />
                 <p className="text-xs font-bold text-slate-900">Presigned S3</p>
                 <p className="text-[10px] text-slate-500">Protected Health Info</p>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-left shadow-sm">
+              <div className="p-3.5 bg-white rounded-2xl border border-slate-200 text-left shadow-sm">
                 <Layers className="w-4 h-4 text-emerald-600 mb-1" />
                 <p className="text-xs font-bold text-slate-900">SQS + Lambda</p>
                 <p className="text-[10px] text-slate-500">Async Reminders</p>
@@ -234,7 +260,30 @@ export default function Home() {
   // Active Authenticated Portal View
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        onOpenAddDoctor={() => setShowAddDoctorModal(true)}
+        onOpenAddPatient={() => setShowAddPatientModal(true)}
+        onResetCleanCanvas={handleResetCleanCanvas}
+      />
+
+      {/* Notification Banner */}
+      {notificationBanner && (
+        <div className="bg-emerald-600 text-white px-4 py-3 text-xs font-bold flex items-center justify-between shadow-sm">
+          <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" /> {notificationBanner}
+            </span>
+            <button
+              onClick={() => setNotificationBanner(null)}
+              className="text-white hover:text-emerald-200 font-bold ml-4"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         {/* Active Telemedicine Room takes precedence when in a call */}
@@ -248,7 +297,16 @@ export default function Home() {
         ) : (
           <>
             {activeTab === "doctors" && (
-              <DoctorBrowser onSelectDoctor={(doc) => setBookingDoctor(doc)} />
+              <DoctorBrowser 
+                onSelectDoctor={(doc) => setBookingDoctor(doc)} 
+                onAddDoctor={() => setShowAddDoctorModal(true)}
+              />
+            )}
+
+            {activeTab === "patients" && (
+              <PatientDirectory
+                onAddPatient={() => setShowAddPatientModal(true)}
+              />
             )}
 
             {activeTab === "appointments" && (
@@ -268,6 +326,32 @@ export default function Home() {
         )}
       </main>
 
+      {/* Add Doctor Modal */}
+      {showAddDoctorModal && (
+        <AddDoctorModal
+          onClose={() => setShowAddDoctorModal(false)}
+          onSuccess={() => {
+            setShowAddDoctorModal(false);
+            setNotificationBanner("Doctor registered successfully! Availability schedule active.");
+            setTimeout(() => setNotificationBanner(null), 6000);
+            setActiveTab("doctors");
+          }}
+        />
+      )}
+
+      {/* Add Patient Modal */}
+      {showAddPatientModal && (
+        <AddPatientModal
+          onClose={() => setShowAddPatientModal(false)}
+          onSuccess={() => {
+            setShowAddPatientModal(false);
+            setNotificationBanner("Patient profile created successfully!");
+            setTimeout(() => setNotificationBanner(null), 6000);
+            setActiveTab("patients");
+          }}
+        />
+      )}
+
       {/* Booking Modal */}
       {bookingDoctor && (
         <BookingModal
@@ -275,6 +359,8 @@ export default function Home() {
           onClose={() => setBookingDoctor(null)}
           onSuccess={() => {
             setBookingDoctor(null);
+            setNotificationBanner("Consultation confirmed! Check your appointments queue.");
+            setTimeout(() => setNotificationBanner(null), 6000);
             setActiveTab("appointments");
           }}
         />
@@ -287,6 +373,8 @@ export default function Home() {
           onClose={() => setSoapAppointment(null)}
           onSaved={() => {
             setSoapAppointment(null);
+            setNotificationBanner("SOAP Clinical Documentation saved and signed.");
+            setTimeout(() => setNotificationBanner(null), 6000);
           }}
         />
       )}
@@ -298,6 +386,8 @@ export default function Home() {
           onClose={() => setRxAppointment(null)}
           onSaved={() => {
             setRxAppointment(null);
+            setNotificationBanner("Electronic Prescription (e-Rx) signed and issued.");
+            setTimeout(() => setNotificationBanner(null), 6000);
           }}
         />
       )}

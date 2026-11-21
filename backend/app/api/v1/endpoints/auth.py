@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
@@ -7,7 +7,7 @@ from app.core.audit_logger import extract_client_info, log_audit_event
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import create_access_token, get_password_hash, verify_password
-from app.models.doctor import DoctorProfile
+from app.models.doctor import AvailabilitySlot, DoctorProfile
 from app.models.patient import PatientProfile
 from app.models.user import User, UserRole
 from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
@@ -22,7 +22,7 @@ def register(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Register a new patient, doctor, or admin account."""
+    """Register a new patient, doctor, or admin account with full clinical profile."""
     existing_user = db.query(User).filter(User.email == user_in.email).first()
     if existing_user:
         raise HTTPException(
@@ -60,21 +60,46 @@ def register(
 
     # Automatically provision associated profile based on role
     if user_in.role == UserRole.DOCTOR:
+        avatar = user_in.avatar_url or "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&q=80"
         doctor_profile = DoctorProfile(
             user_id=new_user.id,
             specialization=user_in.specialization or "General Medicine",
             license_number=user_in.license_number or f"MD-{new_user.id:05d}",
             consultation_fee=user_in.consultation_fee or 120.0,
-            experience_years=5,
+            experience_years=user_in.experience_years or 5,
+            hospital_affiliation=user_in.hospital_affiliation or "CareFlow Medical Center",
+            avatar_url=avatar,
+            bio=user_in.bio or f"Board-certified physician in {user_in.specialization or 'General Medicine'}.",
+            rating=5.0,
+            total_reviews=1,
             is_verified=True
         )
         db.add(doctor_profile)
+        db.flush()
+
+        # Provision Monday-Friday 9:00 - 17:00 availability slots automatically
+        for day_idx in range(5):
+            slot = AvailabilitySlot(
+                doctor_id=doctor_profile.id,
+                day_of_week=day_idx,
+                start_time=time(9, 0),
+                end_time=time(17, 0),
+                slot_duration_minutes=30,
+                is_active=True
+            )
+            db.add(slot)
+
     elif user_in.role == UserRole.PATIENT:
         patient_profile = PatientProfile(
             user_id=new_user.id,
             date_of_birth=user_in.date_of_birth,
             gender=user_in.gender,
-            blood_group=user_in.blood_group
+            blood_group=user_in.blood_group,
+            emergency_contact=user_in.emergency_contact,
+            allergies=user_in.allergies,
+            chronic_conditions=user_in.chronic_conditions,
+            insurance_provider=user_in.insurance_provider,
+            insurance_policy_number=user_in.insurance_policy_number
         )
         db.add(patient_profile)
 

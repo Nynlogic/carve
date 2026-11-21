@@ -1,11 +1,17 @@
-from typing import Optional
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_role
 from app.core.audit_logger import extract_client_info, log_audit_event
 from app.core.database import get_db
+from app.models.appointment import Appointment
+from app.models.consultation import ConsultationNote
+from app.models.doctor import AvailabilitySlot, DoctorProfile
+from app.models.medical_record import MedicalRecord
+from app.models.notification import Notification
 from app.models.patient import PatientProfile
+from app.models.prescription import Prescription
 from app.models.user import User, UserRole
 from app.schemas.common import PaginatedResponse
 from app.schemas.user import PatientProfileResponse, UserResponse
@@ -43,6 +49,41 @@ def list_users(
         "size": size,
         "total_pages": total_pages
     }
+
+
+@router.get("/patients-list")
+def list_all_patients(
+    search: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List patients for clinicians and administrators."""
+    query = db.query(PatientProfile).join(User, PatientProfile.user_id == User.id)
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            (User.full_name.ilike(search_filter)) | (User.email.ilike(search_filter))
+        )
+    profiles = query.all()
+    
+    result = []
+    for p in profiles:
+        result.append({
+            "id": p.id,
+            "user_id": p.user_id,
+            "full_name": p.user.full_name,
+            "email": p.user.email,
+            "phone": p.user.phone,
+            "date_of_birth": str(p.date_of_birth) if p.date_of_birth else None,
+            "gender": p.gender,
+            "blood_group": p.blood_group,
+            "emergency_contact": p.emergency_contact,
+            "allergies": p.allergies,
+            "chronic_conditions": p.chronic_conditions,
+            "insurance_provider": p.insurance_provider,
+            "insurance_policy_number": p.insurance_policy_number
+        })
+    return result
 
 
 @router.patch("/{user_id}/status", response_model=UserResponse)
@@ -97,3 +138,36 @@ def update_my_patient_profile(
     db.commit()
     db.refresh(profile)
     return profile
+
+
+@router.post("/clean-slate")
+def reset_clean_slate(
+    db: Session = Depends(get_db)
+):
+    """
+    Reset platform to a clean canvas: removes all mock doctors, patients,
+    appointments, notes, prescriptions, and records.
+    Keeps only the Admin account so user can add their own doctor and patient details!
+    """
+    try:
+        # Delete dependent data
+        db.query(ConsultationNote).delete()
+        db.query(Prescription).delete()
+        db.query(MedicalRecord).delete()
+        db.query(Appointment).delete()
+        db.query(AvailabilitySlot).delete()
+        db.query(DoctorProfile).delete()
+        db.query(PatientProfile).delete()
+        db.query(Notification).delete()
+        
+        # Delete non-admin users
+        db.query(User).filter(User.role != UserRole.ADMIN).delete()
+        
+        db.commit()
+        return {
+            "status": "success",
+            "message": "Clean canvas activated! All mock doctors and patients removed. You can now add your own doctors and patients."
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")

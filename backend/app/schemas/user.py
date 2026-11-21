@@ -14,15 +14,24 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(..., min_length=6, description="Minimum 6 characters")
     
-    # Optional fields for Doctor onboarding
-    specialization: Optional[str] = None
+    # Doctor onboarding fields
+    specialization: Optional[str] = "General Medicine"
     license_number: Optional[str] = None
     consultation_fee: Optional[float] = 100.0
+    experience_years: Optional[int] = 5
+    hospital_affiliation: Optional[str] = "CareFlow Medical Group"
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
     
-    # Optional fields for Patient onboarding
+    # Patient onboarding fields
     date_of_birth: Optional[date] = None
     gender: Optional[str] = None
     blood_group: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    allergies: Optional[str] = None
+    chronic_conditions: Optional[str] = None
+    insurance_provider: Optional[str] = None
+    insurance_policy_number: Optional[str] = None
 
 
 class UserLogin(BaseModel):
