@@ -26,7 +26,9 @@ jobs:
       - name: Bandit (fail on medium+ findings)
         run: bandit -q -r backend/app -ll
       - name: pip-audit (runtime dependencies)
-        run: pip-audit -r backend/requirements.txt
+        # Accepted, no fixed release exists: PYSEC-2026-4298 (python-jose key confusion: not reachable, algorithms are pinned to HS256/RS256)
+        # and PYSEC-2026-1325 (ecdsa Minerva timing: ECDSA signing is never used).
+        run: pip-audit -r backend/requirements.txt --ignore-vuln PYSEC-2026-4298 --ignore-vuln PYSEC-2026-1325
 
   frontend:
     name: Frontend – build and audit
