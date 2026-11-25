@@ -1,0 +1,52 @@
+#!/bin/bash
+# Bootstrap of the CAREvia application host (Amazon Linux 2023, arm64). Contains NO secrets.
+set -euxo pipefail
+exec > >(tee /var/log/carevia-bootstrap.log) 2>&1
+
+dnf install -y docker jq
+systemctl enable --now docker
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -fsSL https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-aarch64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+mkdir -p /opt/carevia/state
+aws s3 sync s3://${artifacts_bucket}/deploy/ /opt/carevia/ --region ${region}
+chmod +x /opt/carevia/*.sh
+
+cat > /opt/carevia/deploy.env <<ENV
+AWS_REGION=${region}
+SITE_HOST=${site_host}
+DB_SECRET_ID=${db_secret}
+JWT_SECRET_ID=${jwt_secret}
+SEED_SECRET_ID=${seed_secret}
+S3_BUCKET_NAME=${records_bucket}
+SQS_URL=${sqs_url}
+SNS_ARN=${sns_arn}
+LOG_GROUP=${log_group}
+RELEASE_REGISTRY=${release_registry}
+ENV
+chmod 600 /opt/carevia/deploy.env
+touch /opt/carevia/state/seed.pending   # first boot only: synthetic demo users (passwords come from Secrets Manager)
+
+# Pull-based CD: poll every 2 minutes (no-op unless RELEASE_REGISTRY is set)
+cat > /etc/systemd/system/carevia-poll.service <<UNIT
+[Unit]
+Description=CAREvia pull-based release check
+[Service]
+Type=oneshot
+ExecStart=/opt/carevia/poll-release.sh
+UNIT
+cat > /etc/systemd/system/carevia-poll.timer <<UNIT
+[Unit]
+Description=CAREvia release check timer
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+[Install]
+WantedBy=timers.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now carevia-poll.timer
+
+# First deployment
+/opt/carevia/deploy.sh "${backend_image}" "${frontend_image}"

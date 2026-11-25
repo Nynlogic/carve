@@ -1,55 +1,21 @@
-name: Security & Vulnerability Scanning
+name: Weekly security scan
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: "0 0 * * 0" # Weekly automated scan
+  schedule: [{ cron: "0 3 * * 1" }]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  static-security-analysis:
-    name: Bandit SAST & Dependency Audits
+  scan:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Run Bandit Security Scanner
-        run: |
-          pip install bandit
-          bandit -r backend/app -ll -ii
-
-      - name: Audit Frontend Dependencies
-        run: |
-          cd frontend
-          npm audit --audit-level=high || true
-
-  container-vulnerability-scan:
-    name: Trivy Container Vulnerability Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Build Local Backend Docker Image
-        run: |
-          docker build -t careflow-api:scan ./backend
-
-      - name: Run Trivy Vulnerability Scanner (Backend)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "careflow-api:scan"
-          format: "table"
-          exit-code: "0"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install bandit pip-audit
+      - run: bandit -q -r backend/app -ll
+      - run: pip-audit -r backend/requirements.txt
+      - uses: aquasecurity/trivy-action@0.28.0
+        with: { scan-type: fs, scan-ref: ., severity: "CRITICAL,HIGH", ignore-unfixed: true, exit-code: "1" }

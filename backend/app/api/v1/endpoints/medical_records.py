@@ -67,8 +67,21 @@ def confirm_document_upload(
     """
     Persist document metadata after successful client-side upload to S3.
     """
+    patient_id = record_in.patient_id
+    if current_user.role == UserRole.PATIENT:
+        patient = db.query(PatientProfile).filter(PatientProfile.user_id == current_user.id).first()
+        if not patient:
+            raise HTTPException(status_code=404, detail="Patient profile not found")
+        patient_id = patient.id  # patients can only attach records to themselves
+    elif not patient_id:
+        raise HTTPException(status_code=400, detail="patient_id is required for clinical staff.")
+
+    # The object key must belong to this patient's prefix (prevents referencing others' files)
+    if not record_in.file_key.startswith(f"patients/{patient_id}/records/") or ".." in record_in.file_key:
+        raise HTTPException(status_code=400, detail="Invalid file key for this patient.")
+
     record = MedicalRecord(
-        patient_id=record_in.patient_id,
+        patient_id=patient_id,
         uploaded_by_id=current_user.id,
         title=record_in.title,
         description=record_in.description,
@@ -191,6 +204,10 @@ async def local_upload_handler(
     file_key: str = Query(...)
 ):
     """Handles direct file upload for local development mode."""
+    if settings.STORAGE_MODE != "local":
+        raise HTTPException(status_code=404, detail="Not found")
+    if ".." in file_key or file_key.startswith("/"):
+        raise HTTPException(status_code=400, detail="Invalid file key")
     target_path = os.path.join(settings.LOCAL_UPLOAD_DIR, file_key.replace("/", "_"))
     os.makedirs(os.path.dirname(target_path) or ".", exist_ok=True)
     
@@ -206,6 +223,10 @@ def local_download_handler(
     file_key: str = Query(...)
 ):
     """Serves file directly in local development mode."""
+    if settings.STORAGE_MODE != "local":
+        raise HTTPException(status_code=404, detail="Not found")
+    if ".." in file_key or file_key.startswith("/"):
+        raise HTTPException(status_code=400, detail="Invalid file key")
     target_path = os.path.join(settings.LOCAL_UPLOAD_DIR, file_key.replace("/", "_"))
     if not os.path.exists(target_path):
         # Create a dummy sample content if file doesn't exist on disk yet

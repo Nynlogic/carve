@@ -3,6 +3,7 @@ CareFlow Database Seeding Script (Indian Context & INR Currency).
 Populates production-grade sample data for live demo and recruiter walkthrough.
 """
 import json
+import os
 from datetime import date, datetime, time, timedelta, timezone
 
 from app.core.database import Base, SessionLocal, engine
@@ -34,7 +35,7 @@ def seed_database():
         # 1. Admin
         admin_user = User(
             email="admin@careflow.health",
-            hashed_password=get_password_hash("CareFlowAdmin123!"),
+            hashed_password=get_password_hash(os.getenv("SEED_ADMIN_PASSWORD", "CareFlowAdmin123!")),
             full_name="Dr. Rajesh Sharma",
             role=UserRole.ADMIN,
             phone="+91 98200 11223",
@@ -93,7 +94,7 @@ def seed_database():
         for d in doctors_data:
             doc_user = User(
                 email=d["email"],
-                hashed_password=get_password_hash("DoctorPass123!"),
+                hashed_password=get_password_hash(os.getenv("SEED_DOCTOR_PASSWORD", "DoctorPass123!")),
                 full_name=d["name"],
                 role=UserRole.DOCTOR,
                 phone=d["phone"],
@@ -175,7 +176,7 @@ def seed_database():
         for p in patients_data:
             pat_user = User(
                 email=p["email"],
-                hashed_password=get_password_hash("PatientPass123!"),
+                hashed_password=get_password_hash(os.getenv("SEED_PATIENT_PASSWORD", "PatientPass123!")),
                 full_name=p["name"],
                 role=UserRole.PATIENT,
                 phone=p["phone"],

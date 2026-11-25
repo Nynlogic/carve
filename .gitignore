@@ -60,3 +60,11 @@ override.tf.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+.build/
+crash.log

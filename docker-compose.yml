@@ -32,9 +32,10 @@ services:
       DATABASE_URL: postgresql://careflow_admin:careflow_dev_password_2026@db:5432/careflow
       SECRET_KEY: careflow-super-secure-production-ready-jwt-secret-key-change-in-prod-2026
       ENVIRONMENT: development
+      ENABLE_DEMO_ENDPOINTS: "true"
       STORAGE_MODE: local
       USE_AWS_COGNITO: "false"
-      BACKEND_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000","*"]'
+      BACKEND_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000"]'
     ports:
       - "8000:8000"
     volumes:
@@ -51,6 +52,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
     container_name: careflow-frontend
     restart: always
     depends_on:

@@ -1,7 +1,7 @@
 """
 AWS Lambda: CareFlow HIPAA Document Integrity & Malware Scanner.
 Triggered by S3 s3:ObjectCreated events on the medical records bucket.
-Computes SHA-256 checksum, performs virus/malware inspection, and tags objects.
+Computes SHA-256 checksum, performs a BASIC signature check (executable header / script tag; NOT a full anti-malware engine), and tags objects.
 """
 import hashlib
 import json
@@ -46,7 +46,7 @@ def lambda_handler(event, context):
                 {"Key": "ScanStatus", "Value": "INFECTED" if is_malicious else "CLEAN"},
                 {"Key": "IntegrityVerified", "Value": "true"},
                 {"Key": "SHA256", "Value": sha256_hash[:32]},
-                {"Key": "HIPAACompliant", "Value": "true"}
+                {"Key": "ScanType", "Value": "basic-signature-check"}
             ]
 
             s3_client.put_object_tagging(

@@ -29,7 +29,7 @@ class PresignedDownloadResponse(BaseModel):
 
 
 class MedicalRecordCreate(BaseModel):
-    patient_id: int
+    patient_id: Optional[int] = None
     title: str
     description: Optional[str] = None
     category: DocumentCategory

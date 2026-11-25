@@ -43,6 +43,26 @@ def get_current_user(
     return user
 
 
+oauth2_optional = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False
+)
+
+
+def get_optional_user(
+    db: Session = Depends(get_db),
+    token: Optional[str] = Depends(oauth2_optional)
+) -> Optional[User]:
+    """Return the authenticated user if a valid token is supplied, else None."""
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+        user = db.query(User).filter(User.id == int(payload.get("sub"))).first()
+    except Exception:
+        return None
+    return user if user and user.is_active else None
+
+
 def require_role(allowed_roles: List[UserRole]):
     """Role-based access control (RBAC) dependency factory."""
     def role_checker(current_user: User = Depends(get_current_user)) -> User:

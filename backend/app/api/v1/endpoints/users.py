@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_role
 from app.core.audit_logger import extract_client_info, log_audit_event
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.appointment import Appointment
 from app.models.consultation import ConsultationNote
@@ -55,7 +56,7 @@ def list_users(
 def list_all_patients(
     search: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_role([UserRole.DOCTOR, UserRole.ADMIN]))
 ):
     """List patients for clinicians and administrators."""
     query = db.query(PatientProfile).join(User, PatientProfile.user_id == User.id)
@@ -142,13 +143,16 @@ def update_my_patient_profile(
 
 @router.post("/clean-slate")
 def reset_clean_slate(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role([UserRole.ADMIN]))
 ):
     """
     Reset platform to a clean canvas: removes all mock doctors, patients,
     appointments, notes, prescriptions, and records.
     Keeps only the Admin account so user can add their own doctor and patient details!
     """
+    if not settings.ENABLE_DEMO_ENDPOINTS:
+        raise HTTPException(status_code=404, detail="Not found")
     try:
         # Delete dependent data
         db.query(ConsultationNote).delete()

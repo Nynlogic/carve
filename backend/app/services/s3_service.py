@@ -49,7 +49,9 @@ class S3StorageService:
             raise ValueError(f"Unsupported document MIME type: {mime_type}")
 
         unique_id = uuid.uuid4().hex
-        clean_filename = file_name.replace(" ", "_")
+        clean_filename = "".join(
+            c if (c.isalnum() or c in "._-") else "_" for c in os.path.basename(file_name)
+        )[:100] or "document"
         file_key = f"patients/{patient_id}/records/{unique_id}_{clean_filename}"
 
         if self.is_s3_enabled and self.s3_client:
@@ -60,7 +62,6 @@ class S3StorageService:
                         "Bucket": self.bucket_name,
                         "Key": file_key,
                         "ContentType": mime_type,
-                        "ServerSideEncryption": "aws:kms"
                     },
                     ExpiresIn=self.expiration
                 )

@@ -102,7 +102,18 @@ def get_prescriptions_for_appointment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Fetch prescriptions associated with a specific appointment."""
+    """Fetch prescriptions associated with a specific appointment (participants and admins only)."""
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    if current_user.role == UserRole.PATIENT:
+        patient = db.query(PatientProfile).filter(PatientProfile.user_id == current_user.id).first()
+        if not patient or appointment.patient_id != patient.id:
+            raise HTTPException(status_code=403, detail="Forbidden")
+    elif current_user.role == UserRole.DOCTOR:
+        doctor = db.query(DoctorProfile).filter(DoctorProfile.user_id == current_user.id).first()
+        if not doctor or appointment.doctor_id != doctor.id:
+            raise HTTPException(status_code=403, detail="Forbidden")
     prescriptions = db.query(Prescription).filter(Prescription.appointment_id == appointment_id).all()
     return prescriptions
 
