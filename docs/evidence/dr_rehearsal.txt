@@ -1,2 +1,16 @@
 snapshot carevia-manual-20261125-235454 available after 170s
 restored instance available after 575s (measured RTO for restore-from-snapshot)
+users                7 7 OK
+doctor_profiles      3 3 OK
+patient_profiles     3 3 OK
+appointments         3 2 DIFF
+consultation_notes   2 2 OK
+prescriptions        2 2 OK
+medical_records      2 2 OK
+notifications        4 3 DIFF
+audit_logs           15 10 DIFF
+availability_slots   15 15 OK
+RESULT restore has rows as of snapshot time (source may have newer rows)
+ 
+temporary restore instance deletion requested (only the temp copy; production DB and the manual snapshot are kept)
+{"snapshot_seconds": 170, "restore_seconds_RTO": 575, "RPO_note": "snapshot = point in time; automated backups give 5-minute PITR"}
