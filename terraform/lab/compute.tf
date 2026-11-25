@@ -34,14 +34,14 @@ resource "aws_instance" "web" {
   }
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
     region           = var.region
-    artifacts_bucket = aws_s3_bucket.artifacts.id
+    artifacts_bucket = local.bucket_artifacts
     site_host        = local.site_host
     backend_image    = var.backend_image
     frontend_image   = var.frontend_image
     db_secret        = aws_secretsmanager_secret.db.name
     jwt_secret       = aws_secretsmanager_secret.jwt.name
     seed_secret      = aws_secretsmanager_secret.seed.name
-    records_bucket   = aws_s3_bucket.records.id
+    records_bucket   = local.bucket_records
     sqs_url          = aws_sqs_queue.notifications.url
     sns_arn          = aws_sns_topic.alerts.arn
     log_group        = aws_cloudwatch_log_group.app.name

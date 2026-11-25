@@ -141,7 +141,7 @@ resource "aws_cloudwatch_dashboard" "main" {
 
 resource "aws_cloudtrail" "main" {
   name                          = "${var.name}-trail"
-  s3_bucket_name                = aws_s3_bucket.logs.id
+  s3_bucket_name                = local.bucket_logs
   s3_key_prefix                 = "cloudtrail"
   is_multi_region_trail         = true
   include_global_service_events = true

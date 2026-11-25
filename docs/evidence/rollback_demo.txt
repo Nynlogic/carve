@@ -1,0 +1,29 @@
+Success
+2026-11-25T18:21:30Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-broken frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:24:09Z ROLLBACK reason=health check failed
+2026-11-25T18:24:21Z rolled back to 211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f
+EXIT=1
+--- history
+2026-11-25T18:17:09Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:17:40Z demo data seeded (synthetic)
+2026-11-25T18:17:48Z DEPLOY ok backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:21:30Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-broken frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:24:09Z ROLLBACK reason=health check failed
+2026-11-25T18:24:21Z rolled back to 211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f
+--- running
+carevia-backend-1 211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f Up Less than a second (health: starting)
+carevia-caddy-1 caddy:2.8-alpine Up Less than a second
+carevia-frontend-1 211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f Up 6 minutes (healthy)
+
+revia-caddy-1  Started
+ Container carevia-frontend-1  Running
+ Container carevia-caddy-1  Stopping
+ Container carevia-caddy-1  Stopped
+ Container carevia-backend-1  Recreate
+ Container carevia-backend-1  Recreated
+ Container carevia-caddy-1  Created
+ Container carevia-backend-1  Starting
+ Container carevia-backend-1  Started
+ Container carevia-caddy-1  Starting
+ Container carevia-caddy-1  Started
+
