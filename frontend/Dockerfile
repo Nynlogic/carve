@@ -10,7 +10,7 @@ COPY . .
 # NEXT_PUBLIC_* values are compiled into the JS bundle at build time.
 # "/api/v1" = same-origin calls through the reverse proxy (no CORS, no rebuild per host).
 ARG NEXT_PUBLIC_API_URL=/api/v1
-ARG NEXT_PUBLIC_DEMO_MODE=false
+ARG NEXT_PUBLIC_DEMO_MODE=true
 ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_TELEMETRY_DISABLED=1

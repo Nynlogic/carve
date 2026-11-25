@@ -115,7 +115,7 @@ export const SecurityCenter: React.FC = () => {
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
               <span className="font-bold text-slate-800">Storage Encryption at Rest</span>
               <p className="text-slate-500">
-                All uploaded medical reports and diagnostic images are encrypted using AWS KMS Customer Managed Keys (AES-256).
+                All uploaded medical reports and diagnostic images are encrypted at rest with strong encryption keys (AES-256).
               </p>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
@@ -127,7 +127,7 @@ export const SecurityCenter: React.FC = () => {
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
               <span className="font-bold text-slate-800">Database Level Protection</span>
               <p className="text-slate-500">
-                PostgreSQL database volumes are encrypted with KMS keys; secrets and tokens are loaded through environment configuration.
+                The database is encrypted at rest and credentials are held in a managed secrets store.
               </p>
             </div>
           </div>

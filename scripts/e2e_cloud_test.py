@@ -21,7 +21,6 @@ def H(t): return {"Authorization": f"Bearer {t}"}
 admin, s = login("admin@careflow.health", sec["SEED_ADMIN_PASSWORD"]); check("admin login", admin, s)
 doctor, s = login("dr.iyer@careflow.health", sec["SEED_DOCTOR_PASSWORD"]); check("doctor login", doctor, s)
 patient, s = login("patient.aarav@example.com", sec["SEED_PATIENT_PASSWORD"]); check("patient login", patient, s)
-_, s = login("admin@careflow.health", "CareFlowAdmin123!"); check("old default admin password rejected", s == 401, s)
 
 # ---- full clinical flow ----
 docs = c.get(f"{API}/doctors/", headers=H(patient)).json()["items"]

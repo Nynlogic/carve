@@ -45,7 +45,7 @@ const PRESET_AVATARS = [
 export const AddDoctorModal: React.FC<AddDoctorModalProps> = ({ onClose, onSuccess }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("DoctorPass123!");
   const [phone, setPhone] = useState("+91 98765 43210");
   const [specialization, setSpecialization] = useState("Cardiology");
   const [licenseNumber, setLicenseNumber] = useState(`MCI-2024-${Math.floor(10000 + Math.random() * 90000)}`);

@@ -25,7 +25,7 @@ const BLOOD_GROUPS = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
 export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuccess }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("PatientPass123!");
   const [phone, setPhone] = useState("+91 98200 54321");
   const [dob, setDob] = useState("1994-08-20");
   const [gender, setGender] = useState("Female");

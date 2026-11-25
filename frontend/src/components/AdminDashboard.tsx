@@ -222,7 +222,7 @@ export const AdminDashboard: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                  <span className="font-semibold text-slate-800">S3 KMS Document Vault</span>
+                  <span className="font-semibold text-slate-800">Secure Document Vault</span>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Encrypted
                   </span>

@@ -64,7 +64,6 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [submittingAuth, setSubmittingAuth] = useState(false);
-  const [showArchDrawer, setShowArchDrawer] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loginSectionRef = useRef<HTMLDivElement>(null);
@@ -140,15 +139,7 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
-              <a href="#benefits" className="hover:text-slate-900 transition">Capabilities</a>
-              <a href="#security" className="hover:text-slate-900 transition">Security Architecture</a>
-              <button 
-                onClick={() => setShowArchDrawer(true)} 
-                className="hover:text-teal-700 transition flex items-center gap-1"
-              >
-                <Server className="w-3.5 h-3.5 text-teal-600" /> Cloud Specs
-              </button>
-            </div>
+</div>
 
             <div className="flex items-center gap-3">
               <button
@@ -296,119 +287,8 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Core Platform Capabilities Section */}
-          <section id="benefits" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full border-t border-slate-200/80">
-            <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700">Unified Health Experience</span>
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Built for patients, practitioners, and clinical teams</h2>
-              <p className="text-xs text-slate-500">Every interaction is encrypted, audited, and streamlined.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-                  <Stethoscope className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Verified Specialists</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Browse certified clinicians, view institutional affiliations, and book 30-minute consultation slots.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Health Vault</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Store diagnostic lab reports and radiology scans protected by client-side presigned encryption.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-                  <Video className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">HD Teleconsultations</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Secure peer-to-peer virtual consultation workspace with synchronized clinical SOAP documentation.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
-                  <Pill className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Digital Prescriptions</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Tamper-evident pharmacological orders with precise dosage instructions and automated reminders.
-                </p>
-              </div>
-            </div>
-          </section>
         </main>
 
-        {/* Architecture Drawer / Modal for Technical Evaluators */}
-        {showArchDrawer && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <Server className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-base font-bold text-slate-900">Cloud Architecture & Security Specifications</h3>
-                </div>
-                <button
-                  onClick={() => setShowArchDrawer(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Carevia is engineered as a stateless, cloud-native application on AWS utilizing Terraform IaC:
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">Amazon VPC</span>
-                  <span className="text-[11px] text-slate-500">3-Tier Multi-AZ Network</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">ECS Fargate</span>
-                  <span className="text-[11px] text-slate-500">FastAPI Containerized Core</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">RDS PostgreSQL</span>
-                  <span className="text-[11px] text-slate-500">KMS CMK Multi-AZ</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">Amazon S3</span>
-                  <span className="text-[11px] text-slate-500">Presigned Medical Vault</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">SQS & SNS</span>
-                  <span className="text-[11px] text-slate-500">Decoupled Queue & Alerts</span>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="font-bold text-slate-900 block">AWS CloudTrail</span>
-                  <span className="text-[11px] text-slate-500">Immutable Audit Logging</span>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex justify-end">
-                <button
-                  onClick={() => setShowArchDrawer(false)}
-                  className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold"
-                >
-                  Close Specs
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Commercial Footer */}
         <footer className="p-6 text-center text-xs text-slate-500 border-t border-slate-200/80 bg-white">
           Carevia Health Technologies • Zero-Trust Healthcare Records & Teleconsultation Platform
         </footer>

@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Telemedicine Cloud
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden lg:block">AWS Fargate • RDS PostgreSQL • S3 KMS Presigned • Cognito RBAC</p>
+              <p className="text-[11px] text-slate-400 hidden lg:block">Secure • Encrypted • Audited</p>
             </div>
           </div>
 
