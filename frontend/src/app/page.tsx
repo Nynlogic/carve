@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { apiRequest } from "@/lib/api";
+import { DEMO_MODE, apiRequest } from "@/lib/api";
 import { Sidebar } from "@/components/Sidebar";
 import { PatientOverview } from "@/components/PatientOverview";
 import { DoctorOverview } from "@/components/DoctorOverview";
@@ -221,7 +221,8 @@ export default function Home() {
                 <p className="text-xs text-slate-500 mt-1">Enter your credentials to access your secure portal</p>
               </div>
 
-              {/* Discreet Role Preview Selector */}
+              {/* Discreet Role Preview Selector (local demo builds only) */}
+              {DEMO_MODE && (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70 space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
                   <span>Quick Access (Demo Roles):</span>
@@ -250,6 +251,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+              )}
 
               {authError && (
                 <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">

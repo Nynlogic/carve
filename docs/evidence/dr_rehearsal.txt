@@ -1,0 +1,2 @@
+snapshot carevia-manual-20261125-235454 available after 170s
+restored instance available after 575s (measured RTO for restore-from-snapshot)
