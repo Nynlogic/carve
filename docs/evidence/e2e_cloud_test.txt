@@ -1,0 +1,32 @@
+PASS admin login 200
+PASS doctor login 200
+PASS patient login 200
+PASS old default admin password rejected 401
+PASS doctor directory 
+PASS patient books appointment 201
+PASS telemedicine room id issued 
+PASS double-booking rejected (409) 409
+PASS doctor saves SOAP note 201
+PASS doctor issues e-prescription 201
+PASS patient reads own prescription 
+PASS presigned upload URL issued 200
+PASS upload URL points to S3 over https 
+PASS browser-style PUT to S3 succeeds 200
+PASS record metadata saved 201
+PASS presigned download URL issued 
+PASS download returns the same bytes 
+PASS direct (unsigned) S3 URL denied 403
+PASS unauthenticated API call rejected 
+PASS self-registration as admin refused 403
+PASS patient blocked from audit log 
+PASS patient blocked from patient directory 
+PASS clean-slate endpoint disabled in production 
+PASS local-upload endpoint disabled (S3 mode) 
+PASS Swagger UI not exposed through proxy 
+PASS patient B cannot download patient A's record (IDOR) 
+PASS patient B cannot read patient A's prescription (IDOR) 
+PASS audit trail recorded login/upload/download ['BOOK_APPOINTMENT', 'DOWNLOAD_MEDICAL_RECORD', 'ISSUE_PRESCRIPTION', 'LOGIN_SUCCESS', 'RECORD_SOAP_NOTE', 'SYSTEM_INITIALIZATION', 'UPLOAD_MEDICAL_RECORD']
+PASS audit API is read-only (no DELETE route) 
+PASS readiness: DB connected, S3 storage 
+
+30/30 checks passed

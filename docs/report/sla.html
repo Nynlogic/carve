@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Service Level Agreement — CAREvia</title>
+<style>
+@page{size:A4;margin:18mm 16mm 20mm}
+body{font-family:Helvetica,Arial,sans-serif;font-size:10.3pt;line-height:1.45;color:#1b2430}
+h1{font-size:20pt;color:#0f5f57;margin:0 0 2mm}h2{font-size:13pt;color:#0f5f57;border-bottom:1.5px solid #0f5f57;padding-bottom:1mm;margin:6mm 0 2mm}
+table{border-collapse:collapse;width:100%;margin:2mm 0 3mm;font-size:9.4pt}th{background:#0f5f57;color:#fff;text-align:left;padding:3px 6px}td{border:1px solid #cfd8dc;padding:3px 6px;vertical-align:top}
+.note{background:#fff7e0;border-left:4px solid #e0a800;padding:2mm 3mm;margin:2mm 0}.sub{color:#5c6b7a;font-size:9.5pt}
+</style></head><body>
+<h1>Service Level Agreement (SLA)</h1>
+<div class="sub">Zero-Trust Multi-Tier Healthcare Records and Tele-Consultation Portal (CAREvia / CareFlow) · [STUDENT NAME(S)] · [ENROLLMENT NO.(S)] · [COURSE CODE] · [UNIVERSITY]</div>
+<div class="note"><b>Scope and honesty.</b> This is a student project on an AWS Academy Learner Lab with synthetic data only. The targets below are <b>design targets</b>, not a commercial guarantee. No long-term uptime has been measured yet — <b>"no long-term data yet"</b>. Service-credit remedies from AWS are not available in the Learner Lab.</div>
+
+<h2>1. What an SLA is</h2>
+<p>An SLA is a written promise about how available and how fast a service is, how quickly problems are fixed, and what happens when the promise is missed. Availability is a percentage of time the service works.</p>
+<table><tr><th>Availability</th><th>Allowed downtime / month (30.4 d)</th><th>per year</th></tr>
+<tr><td>99.99 %</td><td>4.4 min</td><td>52.6 min</td></tr><tr><td>99.95 %</td><td>21.9 min</td><td>4.4 h</td></tr><tr><td>99.9 %</td><td>43.8 min</td><td>8.8 h</td></tr><tr><td>99.5 %</td><td>3.65 h</td><td>1.8 days</td></tr><tr><td>99 %</td><td>7.3 h</td><td>3.65 days</td></tr></table>
+
+<h2>2. What AWS promises (from AWS documentation — <i>not re-verified here</i>)</h2>
+<table><tr><th>Service</th><th>Published monthly commitment</th><th>Used here as</th></tr>
+<tr><td>Amazon EC2</td><td>99.99 % for the Region (instances in ≥2 AZs); 99.5 % for a single instance</td><td>1 instance → <b>99.5 %</b> class</td></tr>
+<tr><td>Amazon RDS</td><td>99.95 % Multi-AZ; 99.5 % single-AZ</td><td>single-AZ → <b>99.5 %</b> class</td></tr>
+<tr><td>Amazon S3 Standard</td><td>99.9 % availability (99.999999999 % durability design)</td><td>records vault</td></tr>
+<tr><td>AWS Lambda</td><td>99.95 %</td><td>notifier, scanner</td></tr>
+<tr><td>Amazon SQS / SNS</td><td>99.9 %</td><td>notification path</td></tr>
+<tr><td>Amazon CloudFront (designed, not built)</td><td>99.9 %</td><td>—</td></tr>
+<tr><td>Cognito, Secrets Manager, KMS, CloudWatch</td><td>99.9 % class</td><td>identity, secrets, monitoring</td></tr></table>
+<p><b>Consequence:</b> the single EC2 host and single-AZ database are the weakest links, so the portal cannot honestly promise more than about <b>99.5 %</b> (≈ 3.6 h downtime/month).</p>
+
+<h2>3. The portal's own targets</h2>
+<table><tr><th>Item</th><th>Target</th><th>Basis</th></tr>
+<tr><td>Availability during clinic hours (Mon–Fri 08:00–20:00 IST)</td><td><b>99.5 %</b> per month</td><td>single-instance + single-AZ class; <i>not measured long-term</i></td></tr>
+<tr><td>Availability outside clinic hours</td><td>best effort (lab credit may require stopping)</td><td>cost control</td></tr>
+<tr><td>RPO (data loss window)</td><td><b>≤ 5 minutes</b> (RDS point-in-time); manual dumps = time of dump</td><td>automated backups, 7 days</td></tr>
+<tr><td>RTO — bad release</td><td><b>≤ 5 minutes</b> (automatic rollback)</td><td>measured: rollback completed 171 s after the deploy started (incl. 150 s health-check window)</td></tr>
+<tr><td>RTO — database restore into a new instance</td><td><b>≤ 20 minutes</b></td><td>measured: restore available in 9.6 min + ≈ 5 min to repoint the app</td></tr>
+<tr><td>RTO — host lost</td><td>≤ 30 minutes (Terraform recreate + automatic redeploy)</td><td>design; not measured</td></tr>
+<tr><td>Cold start after stop</td><td>≤ 10 minutes (DB start + EC2 start + containers)</td><td>estimate</td></tr>
+<tr><td>Support response (S1)</td><td>within 1 h in clinic hours</td><td>team commitment</td></tr>
+<tr><td>Audit-log retention</td><td>≥ 1 year in database; CloudTrail logs 365 days</td><td>S3 lifecycle (logs bucket)</td></tr>
+<tr><td>Data retention</td><td>records: versions kept 90 days after change; archived to Glacier after 180 days; backups 7 days</td><td>S3 lifecycle, RDS</td></tr>
+<tr><td>Security-incident response</td><td>contain within 4 h, notify affected users per policy</td><td>process target</td></tr></table>
+
+<h2>4. Measured results (our tests)</h2>
+<table><tr><th>Measurement</th><th>Result</th></tr>
+<tr><td>End-to-end functional + security checks on the live site</td><td>30 / 30 passed</td></tr>
+<tr><td>Concurrent users (read mix), error rate</td><td>50 users: 0 errors, p95 1.55 s · 100 users: 0 errors, p95 6.6 s (client over the internet)</td></tr>
+<tr><td>Double-booking under 25 simultaneous requests</td><td>none (1 accepted, 24 rejected)</td></tr>
+<tr><td>Automatic rollback of a broken release</td><td>site restored automatically; previous version healthy</td></tr>
+<tr><td>Database restore from snapshot</td><td>available after 575 s; row counts equal to snapshot time</td></tr>
+<tr><td>Long-term uptime</td><td><b>no long-term data yet</b></td></tr></table>
+
+<h2>5. How the targets are met</h2>
+<table><tr><th>Mechanism</th><th>Built?</th></tr>
+<tr><td>Container restart policy, health checks, 2 API workers</td><td>Built, verified</td></tr>
+<tr><td>Automatic rollback of failed releases</td><td>Built, verified</td></tr>
+<tr><td>RDS automated backups + manual snapshot + off-AWS dump; restore rehearsed</td><td>Built, verified</td></tr>
+<tr><td>CloudWatch alarms (host status, CPU, RDS CPU/storage/connections, errors, DLQ) → SNS</td><td>Built; e-mail delivery needs a confirmed subscriber</td></tr>
+<tr><td>Multi-AZ database, second instance + load balancer, WAF/CDN</td><td><b>Designed only</b> (cost; CloudFront blocked)</td></tr></table>
+
+<h2>6. Incident severity</h2>
+<table><tr><th>Level</th><th>Meaning</th><th>Respond</th><th>Restore target</th></tr>
+<tr><td>S1</td><td>Portal down, or suspected data exposure</td><td>1 h (clinic hours)</td><td>4 h</td></tr>
+<tr><td>S2</td><td>Major feature broken (booking, records)</td><td>4 h</td><td>1 working day</td></tr>
+<tr><td>S3</td><td>Minor defect, workaround exists</td><td>1 working day</td><td>5 working days</td></tr>
+<tr><td>S4</td><td>Cosmetic / question</td><td>3 working days</td><td>next release</td></tr></table>
+
+<h2>7. Exclusions</h2>
+<p>Planned maintenance announced ≥ 24 h before; AWS Learner Lab session end, credit exhaustion or lab reset; failures of AWS, Let's Encrypt or nip.io DNS outside our control; misuse or denial-of-service attacks (no WAF); user devices and networks; features marked <i>designed only</i>; WebRTC media quality (not tested).</p>
+</body></html>

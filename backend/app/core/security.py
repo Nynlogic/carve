@@ -77,7 +77,8 @@ def _verify_cognito_token(token: str) -> Dict[str, Any]:
                 resp = client.get(jwks_url)
                 _cognito_jwks = resp.json()
         except Exception as e:
-            return jwt.decode(token, options={"verify_signature": False})
+            # Fail closed: never accept an unverified token.
+            raise ValueError(f"Unable to fetch Cognito signing keys: {e}")
             
     header = jwt.get_unverified_header(token)
     kid = header.get("kid")

@@ -199,36 +199,35 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="pt-2 text-xs text-slate-500 flex items-center justify-between">
                 <span>Average Consultation Duration: <strong className="text-slate-800">30 minutes</strong></span>
-                <span>System Availability SLA: <strong className="text-emerald-700">99.98%</strong></span>
               </div>
             </div>
 
             {/* Health Infrastructure */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-600" /> Platform Infrastructure
+                <Activity className="w-4 h-4 text-emerald-600" /> System Status
               </h3>
               <div className="space-y-2.5 text-xs">
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                  <span className="font-semibold text-slate-800">FastAPI Stateless Core</span>
+                  <span className="font-semibold text-slate-800">Application Service</span>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Healthy
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                  <span className="font-semibold text-slate-800">PostgreSQL Multi-AZ</span>
+                  <span className="font-semibold text-slate-800">Patient Database</span>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Connected
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                  <span className="font-semibold text-slate-800">S3 KMS Document Vault</span>
+                  <span className="font-semibold text-slate-800">Secure Document Vault</span>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Encrypted
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl">
-                  <span className="font-semibold text-slate-800">SQS Asynchronous Queue</span>
+                  <span className="font-semibold text-slate-800">Notification Service</span>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Ready
                   </span>

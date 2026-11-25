@@ -22,3 +22,7 @@ coverage.xml
 .pytest_cache
 careflow.db
 tests/
+.env
+.env.*
+uploads/
+*.db

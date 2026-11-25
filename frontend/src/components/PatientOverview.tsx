@@ -211,7 +211,7 @@ export const PatientOverview: React.FC<PatientOverviewProps> = ({
               <div className="flex items-center justify-between py-1">
                 <span className="text-slate-500">Records Encrypted</span>
                 <span className="font-semibold text-emerald-700 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" /> KMS CMK
+                  <ShieldCheck className="w-3.5 h-3.5" /> Encrypted
                 </span>
               </div>
             </div>

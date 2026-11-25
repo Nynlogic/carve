@@ -71,7 +71,7 @@ export const MedicalRecordsView: React.FC = () => {
       
       const fullUrl = downloadUrl.startsWith("http")
         ? downloadUrl
-        : `http://localhost:8000${downloadUrl}`;
+        : `${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1").replace(/\/api\/v1$/, "")}${downloadUrl}`;
 
       window.open(fullUrl, "_blank");
     } catch (err: any) {
@@ -90,48 +90,48 @@ export const MedicalRecordsView: React.FC = () => {
     setError(null);
 
     try {
-      const recordPayload = {
-        title: docTitle,
-        category: docCategory,
-        description: docDesc || undefined,
-        file_name: uploadFile.name,
-        file_size_bytes: uploadFile.size,
-        mime_type: uploadFile.type || "application/octet-stream",
-      };
+      const mimeType = uploadFile.type || "application/octet-stream";
 
-      const record = await apiRequest("/medical-records/", {
+      // 1) Ask the API for a short-lived presigned upload URL
+      const ticket = await apiRequest("/medical-records/upload-request", {
         method: "POST",
-        body: JSON.stringify(recordPayload),
+        body: JSON.stringify({
+          title: docTitle,
+          category: docCategory,
+          description: docDesc || undefined,
+          file_name: uploadFile.name,
+          file_size_bytes: uploadFile.size,
+          mime_type: mimeType,
+        }),
       });
 
-      const ticket = await apiRequest(
-        `/medical-records/${record.id}/presigned-upload`,
-        { method: "POST" }
-      );
-
-      const isS3 = ticket.upload_strategy === "s3_presigned";
+      // 2) Upload the file directly to encrypted storage
       const targetUrl = ticket.upload_url.startsWith("http")
         ? ticket.upload_url
-        : `http://localhost:8000${ticket.upload_url}`;
-
-      const uploadHeaders: Record<string, string> = {};
-      if (isS3) {
-        uploadHeaders["Content-Type"] = uploadFile.type || "application/octet-stream";
-        if (ticket.kms_key_id) {
-          uploadHeaders["x-amz-server-side-encryption"] = "aws:kms";
-          uploadHeaders["x-amz-server-side-encryption-aws-kms-key-id"] = ticket.kms_key_id;
-        }
-      }
+        : `${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1").replace(/\/api\/v1$/, "")}${ticket.upload_url}`;
 
       const res = await fetch(targetUrl, {
-        method: ticket.http_method || "PUT",
-        headers: uploadHeaders,
+        method: "PUT",
+        headers: { "Content-Type": mimeType },
         body: uploadFile,
       });
-
       if (!res.ok) {
         throw new Error(`Cloud upload failed (${res.status}): ${res.statusText}`);
       }
+
+      // 3) Record the metadata once the object is stored
+      await apiRequest("/medical-records/confirm", {
+        method: "POST",
+        body: JSON.stringify({
+          title: docTitle,
+          category: docCategory,
+          description: docDesc || undefined,
+          file_key: ticket.file_key,
+          file_name: uploadFile.name,
+          file_size_bytes: uploadFile.size,
+          mime_type: mimeType,
+        }),
+      });
 
       setShowUploadModal(false);
       setDocTitle("");

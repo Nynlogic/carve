@@ -1,0 +1,3 @@
+50 concurrent users: {'requests': 250, 'errors': 0, 'seconds': 3.3, 'rps': 76.6, 'p50_ms': 351, 'p95_ms': 1554, 'p99_ms': 1808}
+100 concurrent users: {'requests': 500, 'errors': 0, 'seconds': 15.2, 'rps': 32.8, 'p50_ms': 1348, 'p95_ms': 6606, 'p99_ms': 6990}
+slot race (25 simultaneous bookings of one slot): {409: 25} -> double-booking: NO

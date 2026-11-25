@@ -1,7 +1,11 @@
 import os
 from typing import List, Optional, Union
-from pydantic import AnyHttpUrl, field_validator
+from pydantic import AnyHttpUrl, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.core.secrets_loader import load_secrets_into_env
+
+load_secrets_into_env()  # no-op unless *_SECRET_ID variables are set (cloud)
 
 
 class Settings(BaseSettings):
@@ -48,8 +52,10 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-        "*"
     ]
+
+    # Demo/maintenance endpoints (clean-slate reset). Never enabled in production.
+    ENABLE_DEMO_ENDPOINTS: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -57,6 +63,28 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore"
     )
+
+
+    @model_validator(mode="after")
+    def _normalise_db_url(self):
+        # SQLAlchemy 2.1 defaults "postgresql://" to psycopg3; this project ships psycopg2.
+        if self.DATABASE_URL.startswith("postgresql://"):
+            self.DATABASE_URL = self.DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return self
+
+    @model_validator(mode="after")
+    def _production_guardrails(self):
+        """Fail fast (refuse to start) on unsafe production configuration."""
+        if self.ENVIRONMENT.lower() == "production":
+            if "change-in-prod" in self.SECRET_KEY or len(self.SECRET_KEY) < 32:
+                raise ValueError("SECRET_KEY must be a strong secret in production")
+            if "*" in self.BACKEND_CORS_ORIGINS:
+                raise ValueError("Wildcard CORS origin is not allowed in production")
+            if self.DEBUG:
+                raise ValueError("DEBUG must be False in production")
+            if self.ENABLE_DEMO_ENDPOINTS:
+                raise ValueError("Demo endpoints must be disabled in production")
+        return self
 
 
 settings = Settings()

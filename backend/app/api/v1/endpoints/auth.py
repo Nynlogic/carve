@@ -1,8 +1,9 @@
 from datetime import datetime, time, timedelta
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_optional_user
 from app.core.audit_logger import extract_client_info, log_audit_event
 from app.core.config import settings
 from app.core.database import get_db
@@ -20,9 +21,16 @@ router = APIRouter()
 def register(
     user_in: UserCreate,
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    caller: Optional[User] = Depends(get_optional_user)
 ):
-    """Register a new patient, doctor, or admin account with full clinical profile."""
+    """Register an account. Public self-registration is limited to the PATIENT role;
+    creating doctor/admin accounts requires an authenticated administrator."""
+    if user_in.role != UserRole.PATIENT and (caller is None or caller.role != UserRole.ADMIN):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only an administrator can create doctor or admin accounts."
+        )
     existing_user = db.query(User).filter(User.email == user_in.email).first()
     if existing_user:
         raise HTTPException(

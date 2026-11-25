@@ -24,7 +24,8 @@ RATE_LIMIT_MAX_AUTH_REQUESTS = 20  # max auth attempts per minute
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Ensure tables are created if running without Alembic runner
-    Base.metadata.create_all(bind=engine)
+    if settings.ENVIRONMENT.lower() != "production":
+        Base.metadata.create_all(bind=engine)  # production schema is managed by Alembic
     yield
     # Shutdown logic if any
     pass
@@ -147,7 +148,7 @@ def readiness_check():
     except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={"status": "unhealthy", "database_error": str(e)}
+            content={"status": "unhealthy", "database": "unreachable"}
         )
     finally:
         db.close()
@@ -156,6 +157,8 @@ def readiness_check():
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Standardized error envelope preventing sensitive stack trace leaks in production."""
+    import logging
+    logging.getLogger("careflow").exception("Unhandled error on %s", request.url.path)
     if settings.DEBUG:
         error_detail = str(exc)
     else:

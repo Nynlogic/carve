@@ -1,0 +1,21 @@
+Success
+--- deployment history
+2026-11-25T18:17:09Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:17:40Z demo data seeded (synthetic)
+2026-11-25T18:17:48Z DEPLOY ok backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+--- containers
+carevia-caddy-1 Up 2 minutes
+carevia-backend-1 Up 2 minutes (healthy)
+carevia-frontend-1 Up 2 minutes (healthy)
+--- non-root
+1001
+1001
+--- env has no secrets?
+0
+
+
+Success
+sslmode=disable -> REFUSED: connection to server at "carevia-db.cbgw4cqey8n1.us-east-1.rds.amazonaws.com" (10.20.20.41), port 5432 failed:
+sslmode=require -> CONNECTED, ssl= on
+
+

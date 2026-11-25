@@ -1,112 +1,46 @@
-name: CAREvia Production CI/CD Pipeline
+name: Release (CI-gated, pull-based CD)
 
+# Runs only after the CI workflow succeeded on main. It publishes immutable, SHA-tagged images to GHCR and,
+# as the LAST step, moves the :release tag. The production server polls :release and deploys it itself
+# (migrate -> swap -> health check -> automatic rollback). No cloud credentials are stored in GitHub.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write # Required for AWS OIDC authentication
   contents: read
+  packages: write
 
 jobs:
-  test-and-lint:
-    name: Automated Unit Tests & Code Quality
-    runs-on: ubuntu-latest
-
+  publish:
+    name: Publish images and promote to :release
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04-arm
+    env:
+      REGISTRY: ghcr.io
+      OWNER: ${{ github.repository_owner }}
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install Backend Test Dependencies
+      - uses: actions/checkout@v4
+        with: { ref: "${{ env.SHA }}" }
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build and push SHA-tagged images
         run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
-          pip install pytest pytest-cov flake8
-
-      - name: Run Backend Pytest Suite
+          OWNER_LC=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          docker build -t $REGISTRY/$OWNER_LC/carve-backend:$SHA backend
+          docker build -t $REGISTRY/$OWNER_LC/carve-frontend:$SHA --build-arg NEXT_PUBLIC_API_URL=/api/v1 frontend
+          docker push $REGISTRY/$OWNER_LC/carve-backend:$SHA
+          docker push $REGISTRY/$OWNER_LC/carve-frontend:$SHA
+      - name: Promote to :release (what the server deploys)
         run: |
-          cd backend
-          pytest -v
-
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/package.json
-
-      - name: Install Frontend Dependencies & Verify Build
-        run: |
-          cd frontend
-          npm ci
-          npm run build
-
-  build-and-deploy:
-    name: ECR Build, Push & ECS Rolling Deploy
-    needs: test-and-lint
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.5"
-
-      - name: Terraform Format & Validation Check
-        run: |
-          cd terraform
-          terraform fmt -check
-          terraform init -backend=false
-          terraform validate
-
-      - name: Configure AWS Credentials via GitHub OIDC (No Static Keys)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_DEPLOYMENT_ROLE_ARN }}
-          role-session-name: GitHubActions-CAREvia-Deploy
-        continue-on-error: true # Allows local dry runs when running outside live AWS account
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        continue-on-error: true
-
-      - name: Build, Tag, and Push Docker Image to ECR
-        if: steps.login-ecr.outcome == 'success'
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: carevia-backend
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-      - name: Deploy Task Definition to Amazon ECS Fargate
-        if: steps.login-ecr.outcome == 'success'
-        run: |
-          aws ecs update-service \
-            --cluster carevia-production-cluster \
-            --service carevia-production-service \
-            --force-new-deployment
-
-      - name: Verify Post-Deployment Health Check
-        if: steps.login-ecr.outcome == 'success'
-        run: |
-          echo "Verifying ECS target group health status..."
-          aws ecs wait services-stable \
-            --cluster carevia-production-cluster \
-            --services carevia-production-service
+          OWNER_LC=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          for img in carve-backend carve-frontend; do
+            docker tag $REGISTRY/$OWNER_LC/$img:$SHA $REGISTRY/$OWNER_LC/$img:release
+            docker push $REGISTRY/$OWNER_LC/$img:release
+          done
+      - name: Summary
+        run: echo "Released $SHA. The server picks it up within ~2 minutes and rolls back automatically if /health/ready fails." >> "$GITHUB_STEP_SUMMARY"

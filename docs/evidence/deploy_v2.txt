@@ -1,0 +1,8 @@
+Success
+2026-11-25T18:27:12Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v2-9e747da frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:27:27Z DEPLOY ok backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v2-9e747da frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+EXIT=0
+2026-11-25T18:24:21Z rolled back to 211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v1-632fc0f
+2026-11-25T18:27:12Z DEPLOY start backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v2-9e747da frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+2026-11-25T18:27:27Z DEPLOY ok backend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-backend:v2-9e747da frontend=211125469458.dkr.ecr.us-east-1.amazonaws.com/carevia-frontend:v1-632fc0f
+

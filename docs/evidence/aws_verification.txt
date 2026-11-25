@@ -1,0 +1,31 @@
+RDS engine/class/AZ-mode: postgres 16.13 / db.t4g.micro / MultiAZ=False
+RDS publicly_accessible: False
+RDS storage_encrypted: True
+RDS backup_retention_days: 7
+RDS deletion_protection: True
+RDS log exports: ['postgresql', 'upgrade']
+RDS TLS enforced (rds.force_ssl): []
+RDS endpoint resolves to: 10.20.20.41 (private RFC1918)
+TCP 5432 from the internet: unreachable (timeout) - GOOD
+S3 encryption: aws:kms
+S3 versioning: Enabled
+S3 public access block: {'BlockPublicAcls': True, 'IgnorePublicAcls': True, 'BlockPublicPolicy': True, 'RestrictPublicBuckets': True}
+S3 TLS-only policy: True
+S3 access logging: True
+S3 objects in vault: 1
+object SSE / KMS key: aws:kms / 6c2e8494-a8c0-4344-ba13-15d4caca8533
+object scan tags (Lambda document_scanner): {'IntegrityVerified': 'true', 'SHA256': '79b3c26ce9095274e3ba9ec7b4e11384', 'ScanType': 'basic-signature-check', 'ScanStatus': 'CLEAN'}
+KMS CMK state / rotation: Enabled / True
+Secrets (names only): ['carevia/demo-users', 'carevia/jwt', 'carevia/db']
+ECR backend: tags=None scan=None findings=None
+ECR frontend: tags=None scan=None findings=None
+ECR immutable tags: IMMUTABLE
+CloudTrail: carevia-trail multi-region=True validation=True logging=True
+CloudWatch alarms: {'carevia-app-5xx-errors': 'OK', 'carevia-dlq-not-empty': 'OK', 'carevia-ec2-cpu-high': 'OK', 'carevia-ec2-status-check-failed': 'INSUFFICIENT_DATA', 'carevia-lambda-errors': 'OK', 'carevia-rds-connections-high': 'OK', 'carevia-rds-cpu-high': 'OK', 'carevia-rds-free-storage-low': 'OK'}
+SQS attrs: {'ApproximateNumberOfMessages': '0', 'RedrivePolicy': '{"deadLetterTargetArn":"arn:aws:sqs:us-east-1:211125469458:carevia-notifications-dlq","maxReceiveCount":3}', 'SqsManagedSseEnabled': 'true'}
+Lambda appointment-notifier invoked: 2 log stream(s)
+Lambda document-scanner invoked: 1 log stream(s)
+App container logs in CloudWatch (/carevia/app): ['carevia-caddy-1', 'carevia-backend-1', 'carevia-frontend-1']
+EC2: t4g.small running IMDSv2=required profile=LabInstanceProfile
+Web SG inbound ports: [80, 443]
+DB SG inbound: [(5432, [True], [])]

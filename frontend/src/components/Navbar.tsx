@@ -1,5 +1,6 @@
 "use client";
 
+import { DEMO_MODE } from "@/lib/api";
 import React from "react";
 import { useAuth } from "@/lib/auth-context";
 import { 
@@ -50,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Telemedicine Cloud
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden lg:block">AWS Fargate • RDS PostgreSQL • S3 KMS Presigned • Cognito RBAC</p>
+              <p className="text-[11px] text-slate-400 hidden lg:block">Secure • Encrypted • Audited</p>
             </div>
           </div>
 
@@ -202,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
+            ) : !DEMO_MODE ? null : (
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => quickDemoLogin("admin")}

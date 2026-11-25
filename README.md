@@ -1,12 +1,14 @@
-# CareFlow – Cloud-Native Clinic & Telemedicine Platform
+# Zero-Trust Multi-Tier Healthcare Records and Tele-Consultation Portal (CAREvia / CareFlow)
 
-[![CI Pipeline](https://github.com/careflow/careflow-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/careflow/careflow-platform)
-[![Security Scan](https://github.com/careflow/careflow-platform/actions/workflows/security-scan.yml/badge.svg)](https://github.com/careflow/careflow-platform)
+> **Cloud deployment:** hosted on AWS (Learner Lab). Live URL: `https://<elastic-ip-dashed>.nip.io` (see `terraform output site_url`). Cloud documentation, costing, security, SLA and evidence are in **[`docs/`](docs/)**. Demo/synthetic data only — never real patient data.
+
+[![CI](https://github.com/Nynlogic/carve/actions/workflows/ci.yml/badge.svg)](https://github.com/Nynlogic/carve/actions)
+[![Security Scan](https://github.com/Nynlogic/carve/actions/workflows/security-scan.yml/badge.svg)](https://github.com/Nynlogic/carve/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg?logo=next.js)](https://nextjs.org)
 [![AWS Architecture](https://img.shields.io/badge/AWS-Fargate%20%7C%20RDS%20%7C%20Cognito%20%7C%20S3%20KMS-FF9900.svg?logo=amazon-aws)](https://aws.amazon.com)
-[![HIPAA Ready](https://img.shields.io/badge/HIPAA-Audit%20Trail%20%7C%20KMS%20At%20Rest-blue.svg)](https://aws.amazon.com/compliance/hipaa-compliance/)
+[![HIPAA-conscious](https://img.shields.io/badge/HIPAA--conscious-design%20(not%20certified)-lightgrey.svg)](docs/SECURITY.md)
 
 > **CareFlow** is an enterprise-grade, cloud-native clinic management and telemedicine SaaS platform engineered with **React/Next.js 14**, **FastAPI**, **PostgreSQL**, **Docker**, and **17 core AWS cloud services**. Built from the ground up to demonstrate production software engineering standards, distributed cloud architecture, HIPAA-conscious healthcare security, and automated CI/CD pipelines.
 
@@ -180,7 +182,15 @@ Each AWS service is utilized for an explicit, production-grade architectural pur
 
 ---
 
+## ☁️ AWS deployment (Learner Lab) — what is real
+
+* Built & verified: VPC (public/private-db), EC2 Graviton + Docker (Caddy HTTPS, Next.js, FastAPI), RDS PostgreSQL (private, KMS, TLS enforced, 7-day backups), S3 records vault (SSE-KMS, versioning, TLS-only), KMS CMK, Secrets Manager, ECR, SQS+DLQ, SNS, Lambda (notifier, scanner), Cognito (provisioned), CloudWatch (logs, alarms, dashboard), CloudTrail, SSM.
+* Designed only (blocked/costly in the lab): CloudFront, ALB, WAF, Multi-AZ RDS, NAT, GitHub-OIDC deploy — see `terraform/` (full design) vs `terraform/lab/` (deployed).
+* Docs: [AUDIT](docs/AUDIT.md) · [SECURITY](docs/SECURITY.md) · [CI/CD](docs/CICD.md) · [COSTING](docs/COSTING.md) · [BACKUP & DR](docs/BACKUP_AND_DR.md) · [TESTING](docs/TESTING.md) · [RUNBOOK](docs/RUNBOOK.md) · [DEMO GUIDE](docs/DEMO_GUIDE.md)
+
 ## 🔒 Security, Encryption & HIPAA Model
+
+> This is a **HIPAA-conscious design**, not a certified or compliant system (no BAA, synthetic data only).
 
 CareFlow implements defense-in-depth across the entire application lifecycle:
 

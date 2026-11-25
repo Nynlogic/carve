@@ -7,7 +7,13 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* values are compiled into the JS bundle at build time.
+# "/api/v1" = same-origin calls through the reverse proxy (no CORS, no rebuild per host).
+ARG NEXT_PUBLIC_API_URL=/api/v1
+ARG NEXT_PUBLIC_DEMO_MODE=false
+ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 FROM node:20-alpine AS runner
@@ -25,11 +31,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
+# npm (and its bundled deps) is not needed at runtime: start Next directly and drop it from the image
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 USER nextjs
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD wget -qO- http://localhost:3000 || exit 1
+    CMD wget -qO- http://127.0.0.1:3000 >/dev/null || exit 1
 
-CMD ["npm", "start"]
+CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]
